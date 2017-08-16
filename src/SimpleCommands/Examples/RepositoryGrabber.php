@@ -1,0 +1,46 @@
+<?php
+
+namespace SimpleCommands\Examples;
+
+use SimpleCommands\Annotations\Command;
+use SimpleCommands\Output;
+use Symfony\Component\Console\Output\OutputInterface;
+
+/**
+ * Command sets are usual POPO (Plain Old PHP Objects) and can extend like other classes.
+ */
+class RepositoryGrabber extends BaseCommandSet
+{
+    /**
+     * Load a repository from GitHub
+     *
+     * Long desc
+     *
+     * @Command(shortcuts={"gh", "g"})
+     *
+     * @param OutputInterface $writer
+     * @param string          $url A repository URL
+     * @param bool            $verifySSL Verify SSL?
+     */
+    public function loadFromGithub(OutputInterface $writer, $url, $verifySSL = false)
+    {
+        var_dump($url, $verifySSL);
+
+        $writer->writeln('Yes, we are here!');
+
+        // The default exit code is 0, that means everything is OK.
+    }
+
+    /**
+     * Load repository from BitBucket
+     *
+     * @Command(shortcuts={"bb", "b"})
+     *
+     * @param OutputInterface $writer
+     * @param string          $url A repository URL
+     */
+    public function loadFromBitbucket(OutputInterface $writer, $url)
+    {
+
+    }
+}

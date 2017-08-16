@@ -1,0 +1,41 @@
+{
+    "name":        "alexeyshockov/simple-commands",
+    "type":        "library",
+    "description": "Wrapper around Symfony Console Component to define commands easily.",
+    "keywords":    ["console", "symfony", "cli"],
+    "homepage":    "http://github.com/alexeyshockov/simple-commands",
+    "license":     "MIT",
+    "support":     {
+        "issues": "https://github.com/alexeyshockov/simple-commands/issues"
+    },
+    "authors": [
+        {
+            "name":     "Alexey Shockov",
+            "email":    "alexey@shockov.com",
+            "homepage": "http://alexey.shockov.com/"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.0",
+        "symfony/console": "~3.3",
+        "symfony/stopwatch": "~3.3",
+
+        "doctrine/annotations": "~1.2",
+        "phpdocumentor/reflection-docblock": "~2.0",
+
+        "phpoption/phpoption": "~1.5",
+        "danielstjules/stringy": "~2.0",
+        "lstrojny/functional-php": "~1.6",
+        "alexeyshockov/pattern-matcher": "@dev",
+        "alexeyshockov/colada-x": "@dev"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "~2.5",
+        "nesbot/carbon": "~1.20"
+    },
+    "autoload": {
+        "psr-4": {
+            "SimpleCommands\\": "src/SimpleCommands"
+        }
+    }
+}
