@@ -93,6 +93,8 @@ class CommandAdapter
 
                 throw new InvalidArgumentException("Helper with type {$class->getName()} is not registered.");
             })
+            // TODO Stopwatch timer?..
+            // TODO
         ;
 
         $arguments = [];
