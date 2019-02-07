@@ -2,7 +2,6 @@
 
 namespace SimpleCommands;
 
-use function Functional\partial_left;
 use InvalidArgumentException;
 use PhpOption\None;
 use PhpOption\Option;
@@ -10,7 +9,6 @@ use PhpOption\Some;
 use SimpleCommands\Annotations;
 use SimpleCommands\Reflection\ClassDefinition;
 use SimpleCommands\Reflection\MethodDefinition;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Helper\HelperInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,6 +16,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Colada\x;
 use function Functional\map;
+use function Functional\partial_left;
 use function Functional\reject;
 use function PatternMatcher\option_matcher;
 use function Stringy\create as str;
@@ -28,6 +27,8 @@ class Command
      * @var CommandSet
      */
     private $container;
+
+    private $options;
 
     /**
      * @var MethodDefinition
@@ -48,14 +49,15 @@ class Command
      * "Silent" version of constructor (optional return value instead of an exception).
      *
      * @param CommandSet $container
+     * @param array $options
      * @param MethodDefinition $method
      *
      * @return Option
      */
-    public static function create(CommandSet $container, MethodDefinition $method)
+    public static function create(CommandSet $container, $options, MethodDefinition $method)
     {
         try {
-            $command = new Some(new static($container, $method));
+            $command = new Some(new static($container, $options, $method));
         } catch (InvalidArgumentException $exception) {
             $command = None::create();
         }
@@ -64,20 +66,27 @@ class Command
     }
 
     /**
-     * @throws InvalidArgumentException If method is not a command.
+     * @throws InvalidArgumentException If method is not marked as a command.
      *
      * @param CommandSet $container
+     * @param array $options
      * @param MethodDefinition $method
      */
-    private function __construct(CommandSet $container, MethodDefinition $method)
+    private function __construct(CommandSet $container, $options, MethodDefinition $method)
     {
         $this->container = $container;
+        $this->options = $options;
         $this->method = $method;
         $this->annotation = $method->readAnnotation(Annotations\Command::class);
 
         $this->defineName();
     }
 
+    /**
+     * @param SymfonyCommand $target
+     *
+     * @return SymfonyCommand
+     */
     public function configure(SymfonyCommand $target)
     {
         $target
@@ -88,7 +97,7 @@ class Command
         ;
 
         /*
-         * Arguments.
+         * Arguments
          */
 
         /** @var Argument $argument */
@@ -107,14 +116,13 @@ class Command
         }
 
         /*
-         * Options.
+         * Options
          */
 
-        // TODO Options.
+        // Apply each option to the target command
+        map($this->options, x()->configure($target));
 
-        $target->setCode(partial_left($this, $target));
-
-        return $target;
+        return $target->setCode(partial_left($this, $target));
     }
 
     /**
@@ -129,6 +137,10 @@ class Command
      */
     public function __invoke(SymfonyCommand $target, InputInterface $input, OutputInterface $output)
     {
+        /*
+         * Arguments
+         */
+
         $matcher = option_matcher(function ($className, ClassDefinition $class) {
             return $class->implementsInterface($className);
         })
@@ -159,7 +171,11 @@ class Command
             }
         }
 
-        // TODO Options
+        /*
+         * Options
+         */
+
+        map($this->options, x()->execute($input));
 
         // Use return value from the command for the exit code (as in usual Symfony commands).
         return $this->method->invokeFor($this->container->getObject(), $arguments);

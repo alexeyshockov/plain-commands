@@ -2,21 +2,15 @@
 
 namespace SimpleCommands;
 
-
 use InvalidArgumentException;
 use PhpOption\None;
-use PhpOption\Some;
-use SimpleCommands\Reflection\ClassDefinition;
-use Symfony\Component\Console\Command\Command as SymfonyCommand;
-use Symfony\Component\Console\Helper\HelperInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use function Colada\x;
-use function Functional\reject;
-use function PatternMatcher\option_matcher;
 use PhpOption\Option;
+use PhpOption\Some;
 use SimpleCommands\Reflection\PropertyDefinition;
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use function Colada\x;
 
 class PropertyOption
 {
@@ -59,7 +53,10 @@ class PropertyOption
         $this->property = $property;
         $this->container = $container;
 
-        $this->annotation = $property->readAnnotation(\SimpleCommands\Annotations\Option::class);
+        $this->annotation = $property
+            ->readAnnotation(Annotations\Option::class)
+            ->getOrThrow(new InvalidArgumentException('The property is not a command option'))
+        ;
     }
 
     public function getName()
@@ -74,8 +71,7 @@ class PropertyOption
 
     public function isValueRequired()
     {
-        // TODO Default value duplication. Should be removed somehow...
-        return $this->annotation->map(x()->valueRequired)->getOrElse(true);
+        return $this->annotation->valueRequired;
     }
 
     /**
@@ -83,8 +79,7 @@ class PropertyOption
      */
     public function getShortcuts()
     {
-        // TODO Default value duplication. Should be removed somehow...
-        return $this->annotation->map(x()->shortcuts)->getOrElse([]);
+        return $this->annotation->shortcuts;
     }
 
     public function isArray()
@@ -102,19 +97,30 @@ class PropertyOption
         );
     }
 
-
     public function configure(SymfonyCommand $target)
     {
+        // TODO Boolean options as InputOption::VALUE_NONE
 
+        $mode = $this->isValueRequired() ? InputOption::VALUE_REQUIRED : InputOption::VALUE_OPTIONAL;
+        if ($this->isArray()) {
+            $mode |= InputOption::VALUE_IS_ARRAY;
+        }
+
+        $target->addOption(
+            $this->getName(),
+            $this->getShortcuts(),
+            $mode,
+            $this->getDescription(),
+            $this->getDefaultValue()->getOrElse(null)
+        );
     }
 
     /**
      * Adapt options from Symfony back to the adaptee object.
      *
-     * @param SymfonyCommand $target
      * @param InputInterface $input
      */
-    public function __invoke(SymfonyCommand $target, InputInterface $input)
+    public function execute(InputInterface $input)
     {
         $value = $input->getOption($this->getName());
 

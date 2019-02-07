@@ -25,7 +25,7 @@
         "phpoption/phpoption": "~1.5",
         "danielstjules/stringy": "~3.0",
         "lstrojny/functional-php": "~1.4",
-        "alexeyshockov/pattern-matcher": "@dev",
+        "alexeyshockov/pattern-matcher": "^0.1",
         "alexeyshockov/colada-x": "@dev"
     },
     "require-dev": {

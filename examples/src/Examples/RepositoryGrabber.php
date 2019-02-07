@@ -46,4 +46,10 @@ class RepositoryGrabber extends BaseCommandSet
     {
 
     }
+
+    // This method is not a command, it doesn't use @Command annotation
+    public function arbitraryMethod()
+    {
+
+    }
 }

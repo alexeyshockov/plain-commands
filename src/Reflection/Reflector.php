@@ -8,6 +8,7 @@ use phpDocumentor\Reflection\DocBlock;
 use PhpOption\Option;
 use ReflectionClass;
 use ReflectionMethod;
+use ReflectionProperty;
 
 class Reflector
 {
@@ -74,6 +75,8 @@ class Reflector
             $annotation = $this->annotationReader->getClassAnnotation($target, $type);
         } elseif ($target instanceof ReflectionMethod) {
             $annotation = $this->annotationReader->getMethodAnnotation($target, $type);
+        } elseif ($target instanceof ReflectionProperty) {
+            $annotation = $this->annotationReader->getPropertyAnnotation($target, $type);
         }
 
         return Option::fromValue($annotation);

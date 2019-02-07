@@ -2,6 +2,8 @@
 
 namespace SimpleCommands;
 
+use function Functional\flat_map;
+use function Functional\partial_left;
 use SimpleCommands\Reflection\ObjectDefinition;
 use SimpleCommands\Annotations;
 
@@ -42,5 +44,29 @@ class CommandSet
     public function getObject()
     {
         return $this->object->getObject();
+    }
+
+    /**
+     * @return Command[]
+     */
+    public function buildCommands()
+    {
+        // flat_map() treats Option instances as traversable collections with 1 or 0 elements. So it "opens" them.
+        return flat_map(
+            $this->object->getClass()->getMethods(),
+            partial_left([Command::class, 'create'], $this, $this->buildOptions())
+        );
+    }
+
+    /**
+     * @return PropertyOption[]
+     */
+    public function buildOptions()
+    {
+        // flat_map() treats Option instances as traversable collections with 1 or 0 elements. So it "opens" them.
+        return flat_map(
+            $this->object->getClass()->getProperties(),
+            partial_left([PropertyOption::class, 'create'], $this)
+        );
     }
 }

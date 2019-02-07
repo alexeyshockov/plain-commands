@@ -74,6 +74,10 @@ class PropertyDefinition extends AbstractDefinition
      */
     public function getValue($object)
     {
+        if (!$this->property->isPublic()) {
+            $this->property->setAccessible(true);
+        }
+
         return $this->property->getValue($object);
     }
 

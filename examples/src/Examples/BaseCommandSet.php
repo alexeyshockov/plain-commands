@@ -8,20 +8,25 @@ use SimpleCommands\Annotations\Option;
 class BaseCommandSet
 {
     /**
-     * @Option()
+     * Working directory for the command
+     *
+     * @Option(shortcuts={"w"})
      *
      * @var string
      */
     protected $workingDirectory = './repositories';
 
-    protected $exportPath = './';
+    // Just a usual field, it's not a command option without @Option annotation
+    protected $exportPath;
 
     /**
+     * Export path for the command
+     *
      * @Option()
      *
      * @param string $exportPath
      */
-    protected function setExportPath($exportPath)
+    protected function setExportPath($exportPath = './')
     {
         if (!is_dir($exportPath)) {
             throw new \InvalidArgumentException('Export path should be an existing directory');

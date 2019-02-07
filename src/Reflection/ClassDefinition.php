@@ -5,6 +5,7 @@ namespace SimpleCommands\Reflection;
 use PhpOption\Option;
 use ReflectionClass;
 use ReflectionMethod;
+use ReflectionProperty;
 
 class ClassDefinition extends AbstractDefinition
 {
@@ -46,15 +47,28 @@ class ClassDefinition extends AbstractDefinition
      */
     public function getMethods()
     {
-        $methods = $this->class->getMethods(ReflectionMethod::IS_PUBLIC);
+        $methods = $this->class->getMethods(ReflectionMethod::IS_PUBLIC & ~ReflectionMethod::IS_STATIC);
 
         $definitions = [];
         foreach ($methods as $method) {
-            if ($method->isStatic()) {
-                continue;
-            }
-
             $definitions[] = new MethodDefinition($method, $this->reflector);
+        }
+
+        return $definitions;
+    }
+
+    /**
+     * All non-static properties (private, protected, public)
+     *
+     * @return array
+     */
+    public function getProperties()
+    {
+        $properties = $this->class->getProperties(~ReflectionProperty::IS_STATIC);
+
+        $definitions = [];
+        foreach ($properties as $property) {
+            $definitions[] = new PropertyDefinition($property, $this->reflector);
         }
 
         return $definitions;
