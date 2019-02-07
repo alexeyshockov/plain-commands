@@ -26,6 +26,9 @@ class RepositoryGrabber extends BaseCommandSet
     {
         var_dump($url, $verifySSL);
 
+        var_dump($this->workingDirectory);
+        var_dump($this->exportPath);
+
         $writer->writeln('Yes, we are here!');
 
         // The default exit code is 0, that means everything is OK.

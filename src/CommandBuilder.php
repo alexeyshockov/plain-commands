@@ -5,9 +5,10 @@ namespace SimpleCommands;
 use InvalidArgumentException;
 use SimpleCommands\Reflection\Reflector;
 use Symfony\Component\Console\Application;
-
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use function Functional\flat_map;
 use function Functional\partial_left;
+
 
 class CommandBuilder
 {
@@ -41,17 +42,16 @@ class CommandBuilder
     public function addCommandsFrom($commandSet)
     {
         if (!is_object($commandSet)) {
-            throw new InvalidArgumentException('Only objects supported for now.');
+            throw new InvalidArgumentException('Only objects are supported.');
         }
 
         foreach ($this->buildCommands($commandSet) as $command) {
-            // TODO Remove the adapter and replace it with '->getSymfonyCommand()' method.
-            new CommandAdapter($command, ($sc = new \Symfony\Component\Console\Command\Command($command->getFullName())));
-
             // Add _initialized_ command (aliases must be prepared before this step).
-            $this->application->add($sc);
+            $this->application->add(
+                $command->configure(new SymfonyCommand($command->getFullName()))
+            );
 
-            // This won't be supported and should be done by the end user directly.
+            // This isn't supported and should be done by the end user directly.
 //            if ($command->isDefault()) {
 //                $this->application->setDefaultCommand($command->getFullName());
 //            }

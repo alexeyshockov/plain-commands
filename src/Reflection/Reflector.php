@@ -68,6 +68,7 @@ class Reflector
      */
     public function readAnnotation(\Reflector $target, $type)
     {
+        $annotation = null;
         // TODO To pattern matching.
         if ($target instanceof ReflectionClass) {
             $annotation = $this->annotationReader->getClassAnnotation($target, $type);

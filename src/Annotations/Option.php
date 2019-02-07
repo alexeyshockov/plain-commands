@@ -23,6 +23,5 @@ class Option
     /**
      * @var bool
      */
-    // TODO Implement?..
     public $valueRequired = true;
 }

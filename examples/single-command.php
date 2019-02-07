@@ -10,15 +10,14 @@ use Symfony\Component\Console\Application;
 $classLoader = require __DIR__ . '/../vendor/autoload.php';
 AnnotationRegistry::registerLoader([$classLoader, 'loadClass']);
 
-$reflector = new Reflector();
 $application = new Application();
 
 // Wrap application.
-(new CommandBuilder($application, $reflector))
+(new CommandBuilder($application, new Reflector()))
     ->addCommandsFrom(new RepositoryGrabber())
 ;
 
 // See https://symfony.com/doc/current/components/console/single_command_tool.html for details.
 $application->setDefaultCommand('load-from-github', true);
 
-$exitCode = $application->run();
+$application->run();

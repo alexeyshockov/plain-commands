@@ -10,9 +10,6 @@ use function Functional\partial_method;
 use function PatternMatcher\option_matcher;
 use function Colada\x;
 
-/**
- * @internal
- */
 class Argument
 {
     /**

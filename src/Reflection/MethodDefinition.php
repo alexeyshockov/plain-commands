@@ -23,14 +23,14 @@ class MethodDefinition extends AbstractDefinition
     private $docBlock;
 
     /**
-     * @param ReflectionMethod $method
-     * @param Reflector $reflector
+     * @param ReflectionMethod $property
+     * @param Reflector        $reflector
      */
-    public function __construct(ReflectionMethod $method, Reflector $reflector)
+    public function __construct(ReflectionMethod $property, Reflector $reflector)
     {
         parent::__construct($reflector);
 
-        $this->method = $method;
+        $this->method = $property;
         $this->docBlock = $reflector->readDocBlock($this->method);
     }
 
@@ -67,10 +67,10 @@ class MethodDefinition extends AbstractDefinition
     public function getParameters()
     {
         $parameters = $this->method->getParameters();
-        $tags = $this->docBlock->getTagsByName("param");
+        $tags = $this->docBlock->getTagsByName('param');
 
         if (count($parameters) !== count($tags)) {
-            throw new LengthException("Parameters number is not equal to @var tags number.");
+            throw new LengthException('Parameters number is not equal to @var tags number.');
         }
 
         return map(zip($parameters, $tags), function ($data) {

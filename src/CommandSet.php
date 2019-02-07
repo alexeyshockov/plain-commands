@@ -7,9 +7,6 @@ use SimpleCommands\Annotations;
 
 use function Colada\x;
 
-/**
- * @internal
- */
 class CommandSet
 {
     /**

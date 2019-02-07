@@ -14,6 +14,22 @@ class BaseCommandSet
      */
     protected $workingDirectory = './repositories';
 
+    protected $exportPath = './';
+
+    /**
+     * @Option()
+     *
+     * @param string $exportPath
+     */
+    protected function setExportPath($exportPath)
+    {
+        if (!is_dir($exportPath)) {
+            throw new \InvalidArgumentException('Export path should be an existing directory');
+        }
+
+        $this->exportPath = $exportPath;
+    }
+
     /**
      * Is repository already loaded? Non-zero status code if not loaded
      *

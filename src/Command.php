@@ -2,21 +2,26 @@
 
 namespace SimpleCommands;
 
+use function Functional\partial_left;
 use InvalidArgumentException;
 use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
-use SimpleCommands\Reflection\MethodDefinition;
 use SimpleCommands\Annotations;
-
-use function Functional\map;
-use function Functional\zip;
-use function Stringy\create as str;
+use SimpleCommands\Reflection\ClassDefinition;
+use SimpleCommands\Reflection\MethodDefinition;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
+use Symfony\Component\Console\Helper\HelperInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use function Colada\x;
+use function Functional\map;
+use function Functional\reject;
+use function PatternMatcher\option_matcher;
+use function Stringy\create as str;
 
-/**
- * @internal
- */
 class Command
 {
     /**
@@ -35,12 +40,12 @@ class Command
     private $name;
 
     /**
-     * @var \PhpOption\Option
+     * @var Option
      */
     private $annotation;
 
     /**
-     * "Silent" version of constructor (optional return value instead of exception).
+     * "Silent" version of constructor (optional return value instead of an exception).
      *
      * @param CommandSet $container
      * @param MethodDefinition $method
@@ -73,14 +78,92 @@ class Command
         $this->defineName();
     }
 
+    public function configure(SymfonyCommand $target)
+    {
+        $target
+            ->setAliases($this->getShortcuts())
+            ->setDescription($this->getDescription())
+            // TODO ->addUsage()
+            // TODO ->addHelp()
+        ;
+
+        /*
+         * Arguments.
+         */
+
+        /** @var Argument $argument */
+        foreach (reject($this->getArguments(), x()->isInternal()) as $argument) {
+            $mode = $argument->isRequired() ? InputArgument::REQUIRED : InputArgument::OPTIONAL;
+            if ($argument->isArray()) {
+                $mode |= InputArgument::IS_ARRAY;
+            }
+
+            $target->addArgument(
+                $argument->getName(),
+                $mode,
+                $argument->getDescription(),
+                $argument->getDefaultValue()->getOrElse(null)
+            );
+        }
+
+        /*
+         * Options.
+         */
+
+        // TODO Options.
+
+        $target->setCode(partial_left($this, $target));
+
+        return $target;
+    }
+
     /**
-     * @return bool
+     * @see SymfonyCommand::execute()
+     * @see SymfonyCommand::setCode()
+     *
+     * @param SymfonyCommand $target
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     *
+     * @return int
      */
-    // Doesn't supported at the moment.
-//    public function isDefault()
-//    {
-//        return $this->annotation->map(x()->default)->getOrElse(false);
-//    }
+    public function __invoke(SymfonyCommand $target, InputInterface $input, OutputInterface $output)
+    {
+        $matcher = option_matcher(function ($className, ClassDefinition $class) {
+            return $class->implementsInterface($className);
+        })
+            ->addCase(InputInterface::class, $input)
+            ->addCase(OutputInterface::class, $output)
+            ->addCase(HelperInterface::class, function (ClassDefinition $class) use ($target) {
+                foreach ($target->getHelperSet() as $helper) {
+                    if ($class->isInterfaceOf($helper)) {
+                        return $helper;
+                    }
+                }
+
+                throw new InvalidArgumentException("Helper with type {$class->getName()} is not registered.");
+            })
+            // TODO Stopwatch timer?..
+        ;
+
+        $arguments = [];
+        foreach ($this->getArguments() as $argument) {
+            if (!$argument->isInternal()) {
+                $arguments[] = $input->getArgument($argument->getName());
+            } else {
+                $arguments[] = $argument->getClass()
+                    ->flatMap($matcher)
+                    ->getOrThrow(new InvalidArgumentException(
+                        'Parameter $' . $argument->getName() . ': type is missed or not supported.'
+                    ));
+            }
+        }
+
+        // TODO Options
+
+        // Use return value from the command for the exit code (as in usual Symfony commands).
+        return $this->method->invokeFor($this->container->getObject(), $arguments);
+    }
 
     /**
      * @return array
@@ -113,11 +196,6 @@ class Command
         ;
     }
 
-    public function __invoke(...$arguments)
-    {
-        return $this->method->invokeFor($this->container->getObject(), $arguments);
-    }
-
     /**
      * @return string
      */
@@ -148,8 +226,6 @@ class Command
     {
         return $this->method->getShortDescription();
     }
-
-    // TODO Command options.
 
     /**
      * @return Argument[]
