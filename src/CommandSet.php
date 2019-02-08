@@ -64,9 +64,17 @@ class CommandSet
     public function buildOptions()
     {
         // flat_map() treats Option instances as traversable collections with 1 or 0 elements. So it "opens" them.
-        return flat_map(
+        $properties = flat_map(
             $this->object->getClass()->getProperties(),
             partial_left([PropertyOption::class, 'create'], $this)
         );
+
+        // flat_map() treats Option instances as traversable collections with 1 or 0 elements. So it "opens" them.
+        $methods = flat_map(
+            $this->object->getClass()->getMethods(),
+            partial_left([MethodOption::class, 'create'], $this)
+        );
+
+        return array_merge($properties, $methods);
     }
 }

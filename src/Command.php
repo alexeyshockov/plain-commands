@@ -9,6 +9,7 @@ use PhpOption\Some;
 use SimpleCommands\Annotations;
 use SimpleCommands\Reflection\ClassDefinition;
 use SimpleCommands\Reflection\MethodDefinition;
+use Stringy\StaticStringy;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Helper\HelperInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -19,7 +20,6 @@ use function Functional\map;
 use function Functional\partial_left;
 use function Functional\reject;
 use function PatternMatcher\option_matcher;
-use function Stringy\create as str;
 
 class Command
 {
@@ -198,7 +198,7 @@ class Command
     {
         $this->name = $this->annotation
             ->map(function ($annotation) {
-                return $annotation->value ?: (string) str($this->method->getName())->dasherize();
+                return $annotation->value ?: StaticStringy::dasherize($this->method->getName());
             })
             // Let's stick with annotations for now. Skip this feature.
 //            ->orElse(Option::fromReturn(function () {

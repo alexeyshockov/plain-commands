@@ -54,7 +54,7 @@ class Argument
      */
     public function isArray()
     {
-        return $this->parameter->getType() instanceof ArrayType;
+        return $this->parameter->isArrayType();
 
     }
 

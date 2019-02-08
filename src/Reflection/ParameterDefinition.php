@@ -38,14 +38,25 @@ class ParameterDefinition extends AbstractDefinition
      */
     public function getType()
     {
-        $type = new UnknownType($this->tag->getType());
-        if ($this->parameter->isArray()) {
+        if (
+            ($this->parameter->hasType() && $this->parameter->isArray())
+            ||
+            // TODO string[], int[] and so on
+            in_array('array', $this->tag->getTypes())
+        ) {
             $type = new ArrayType();
         } elseif ($this->parameter->getClass()) {
             $type = new ObjectType($this->reflector->reflectClass($this->parameter->getClass()));
+        } else {
+            $type = new UnknownType($this->tag->getType());
         }
 
         return $type;
+    }
+
+    public function isArrayType()
+    {
+        return $this->getType() instanceof ArrayType;
     }
 
     public function getName()

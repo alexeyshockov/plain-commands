@@ -2,6 +2,7 @@
 
 namespace SimpleCommands\Reflection;
 
+use function Colada\x;
 use phpDocumentor\Reflection\DocBlock;
 use phpDocumentor\Reflection\DocBlock\Tag\VarTag;
 use PhpOption\Option;
@@ -30,6 +31,10 @@ class PropertyDefinition extends AbstractDefinition
 
         $this->property = $property;
         $this->docBlock = $reflector->readDocBlock($this->property);
+
+        if (!$this->property->isPublic()) {
+            $this->property->setAccessible(true);
+        }
 
         // Try to find @var tag for the property.
         $this->tag = Option::fromArraysValue($this->docBlock->getTagsByName('var'), 0);
@@ -62,9 +67,10 @@ class PropertyDefinition extends AbstractDefinition
 
     public function isArrayType()
     {
-        return $this->tag->map(function (VarTag $tag) {
-            $tag->getTypes();
-        })->getOrElse(false);
+        $types = $this->tag->map(x()->getTypes())->getOrElse([]);
+
+        // TODO string[], int[] and so on
+        return in_array('array', $types);
     }
 
     /**
@@ -74,10 +80,6 @@ class PropertyDefinition extends AbstractDefinition
      */
     public function getValue($object)
     {
-        if (!$this->property->isPublic()) {
-            $this->property->setAccessible(true);
-        }
-
         return $this->property->getValue($object);
     }
 

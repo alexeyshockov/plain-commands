@@ -62,7 +62,7 @@ class MethodDefinition extends AbstractDefinition
     /**
      * @throws LengthException If there is mismatch between "param" tags and real parameters.
      *
-     * @return array
+     * @return ParameterDefinition[]
      */
     public function getParameters()
     {

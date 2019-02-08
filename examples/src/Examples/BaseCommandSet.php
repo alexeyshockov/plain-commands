@@ -5,7 +5,7 @@ namespace SimpleCommands\Examples;
 use SimpleCommands\Annotations\Command;
 use SimpleCommands\Annotations\Option;
 
-class BaseCommandSet
+abstract class BaseCommandSet
 {
     /**
      * Working directory for the command
@@ -26,7 +26,7 @@ class BaseCommandSet
      *
      * @param string $exportPath
      */
-    protected function setExportPath($exportPath = './')
+    public function setExportPath($exportPath = './')
     {
         if (!is_dir($exportPath)) {
             throw new \InvalidArgumentException('Export path should be an existing directory');
@@ -34,6 +34,17 @@ class BaseCommandSet
 
         $this->exportPath = $exportPath;
     }
+
+    /**
+     * Example option without default value
+     *
+     * @Option()
+     *
+     * @param string $something
+     */
+    // Doesn't work, because PROTECTED
+    protected function setSomething($something)
+    {}
 
     /**
      * Is repository already loaded? Non-zero status code if not loaded
