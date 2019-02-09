@@ -1,23 +1,17 @@
 #!/usr/bin/env php
 <?php
 
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use SimpleCommands\CommandBuilder;
 use SimpleCommands\Examples\RepositoryGrabber;
-use SimpleCommands\Reflection\Reflector;
 use Symfony\Component\Console\Application;
 
-$classLoader = require __DIR__ . '/../vendor/autoload.php';
-AnnotationRegistry::registerLoader([$classLoader, 'loadClass']);
+/** @var CommandBuilder $builder */
+$builder = require __DIR__ . '/bootstrap.php';
 
-$application = new Application();
-
-// Wrap application.
-(new CommandBuilder($application, new Reflector()))
+$builder
     ->addCommandsFrom(new RepositoryGrabber())
+    ->applyTo(new Application())
+    // See https://symfony.com/doc/current/components/console/single_command_tool.html for details.
+    ->setDefaultCommand('load-from-github', true)
+    ->run()
 ;
-
-// See https://symfony.com/doc/current/components/console/single_command_tool.html for details.
-$application->setDefaultCommand('load-from-github', true);
-
-$application->run();

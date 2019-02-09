@@ -10,22 +10,17 @@ use Symfony\Component\Console\Command\Command as SymfonyCommand;
 class CommandBuilder
 {
     /**
-     * @var Application
-     */
-    private $application;
-
-    /**
      * @var Reflector
      */
     private $reflector;
 
     /**
-     * @param Application $application
-     * @param Reflector $reflector
+     * @var SymfonyCommand[]
      */
-    public function __construct(Application $application, Reflector $reflector)
+    private $commands;
+
+    public function __construct(Reflector $reflector)
     {
-        $this->application = $application;
         $this->reflector = $reflector;
     }
 
@@ -34,21 +29,29 @@ class CommandBuilder
      *
      * @param object $object
      *
-     * @return static
+     * @return $this
      */
     public function addCommandsFrom($object)
     {
-        if (!is_object($object)) {
-            throw new InvalidArgumentException('Only objects are supported.');
-        }
-
         $commandSet = new CommandSet($this->reflector->reflectObject($object));
 
         foreach ($commandSet->buildCommands() as $command) {
             // Add _initialized_ command (aliases must be prepared before this step).
-            $this->application->add(
-                $command->configure(new SymfonyCommand($command->getFullName()))
-            );
+            $this->commands[] = $command->configure(new SymfonyCommand($command->getFullName()));
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Application $app
+     *
+     * @return Application
+     */
+    public function applyTo(Application $app)
+    {
+        foreach ($this->commands as $command) {
+            $app->add($command);
 
             // This isn't supported and should be done by the end user directly.
 //            if ($command->isDefault()) {
@@ -56,6 +59,6 @@ class CommandBuilder
 //            }
         }
 
-        return $this;
+        return $app;
     }
 }

@@ -17,20 +17,25 @@
     ],
     "require": {
         "php": "~7.0",
-        "symfony/console": "~3.0",
+        "symfony/console": "~3.0 | ~4.0",
 
-        "doctrine/annotations": "~1.2",
+        "doctrine/annotations": "~1.2 | ~2.0",
         "phpdocumentor/reflection-docblock": "~2.0",
 
         "phpoption/phpoption": "~1.5",
-        "danielstjules/stringy": "~3.0",
+        "danielstjules/stringy": "~2.1 | ~3.0",
         "lstrojny/functional-php": "~1.4",
         "alexeyshockov/pattern-matcher": "^0.1",
         "alexeyshockov/colada-x": "@dev"
     },
     "require-dev": {
         "phpspec/phpspec": "~2.5",
-        "symfony/stopwatch": "~3.0"
+        "phpunit/phpunit": "~7.0",
+        "symfony/stopwatch": "~3.0 | ~4.0",
+        "symfony/dependency-injection": "~3.0 | ~4.0"
+    },
+    "suggest": {
+        "symfony/dependency-injection": "If you would like to work with console events"
     },
     "autoload": {
         "psr-4": {
@@ -40,6 +45,9 @@
     "autoload-dev": {
         "psr-4": {
             "SimpleCommands\\": "examples/src"
-        }
+        },
+        "files": [
+            "vendor/phpunit/phpunit/src/Framework/Assert/Functions.php"
+        ]
     }
 }

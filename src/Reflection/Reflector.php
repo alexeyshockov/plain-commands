@@ -2,8 +2,6 @@
 
 namespace SimpleCommands\Reflection;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\Reader;
 use phpDocumentor\Reflection\DocBlock;
 use PhpOption\Option;
 use ReflectionClass;
@@ -13,7 +11,7 @@ use ReflectionProperty;
 class Reflector
 {
     /**
-     * @var AnnotationReader
+     * @var \Doctrine\Common\Annotations\Reader|\Doctrine\Annotations\Reader
      */
     private $annotationReader;
 
@@ -21,11 +19,11 @@ class Reflector
      * Doctrine's annotation loader must be registered to working with annotations! See
      * AnnotationRegistry::registerLoader() for details.
      *
-     * @param Reader $annotationReader
+     * @param \Doctrine\Common\Annotations\Reader|\Doctrine\Annotations\Reader $annotationReader
      */
-    public function __construct(Reader $annotationReader = null)
+    public function __construct($annotationReader)
     {
-        $this->annotationReader = $annotationReader ?: new AnnotationReader();
+        $this->annotationReader = $annotationReader;
     }
 
     /**
@@ -40,6 +38,8 @@ class Reflector
 
     /**
      * @param string|ReflectionClass $class
+     *
+     * @throws \ReflectionException If the $class is not a valid name
      *
      * @return ClassDefinition
      */
