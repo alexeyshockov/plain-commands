@@ -41,9 +41,10 @@ abstract class CommandOption
 
     public function getName()
     {
-        return (string) str($this->definition->getName())
-            ->removeLeft('set')
-            ->dasherize();
+        $nameFromDefinition = (string) str($this->definition->getName())->dasherize();
+
+        // From the annotation (first) or from the definition (object property or method)
+        return $this->annotation->value ?: $nameFromDefinition;
     }
 
     public function getDescription()

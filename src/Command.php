@@ -221,14 +221,14 @@ class Command
     }
 
     /**
-     * Name with namespace from command set.
+     * Name with namespace from the command set
      *
      * @return string
      */
     public function getFullName()
     {
         $name = $this->name;
-        if ($this->container->getNamespace() !== "") {
+        if ($this->container->getNamespace() !== '') {
             $name = $this->container->getNamespace() . ':' . $name;
         }
 

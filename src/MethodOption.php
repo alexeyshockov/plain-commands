@@ -8,6 +8,7 @@ use PhpOption\Option;
 use PhpOption\Some;
 use SimpleCommands\Reflection\MethodDefinition;
 use SimpleCommands\Reflection\ParameterDefinition;
+use function Stringy\create as str;
 
 class MethodOption extends CommandOption
 {
@@ -44,6 +45,14 @@ class MethodOption extends CommandOption
             throw new \LogicException('A setter method for a command option must have at least one parameter');
         }
         $this->parameterDefinition = $parameters[0];
+    }
+
+    public function getName()
+    {
+        $nameFromDefinition = (string) str($this->definition->getName())->removeLeft('set')->dasherize();
+
+        // From the annotation (first) or from the definition (object property or method)
+        return $this->annotation->value ?: $nameFromDefinition;
     }
 
     public function isArray()

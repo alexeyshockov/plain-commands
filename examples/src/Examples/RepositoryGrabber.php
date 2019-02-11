@@ -20,11 +20,11 @@ class RepositoryGrabber extends BaseCommandSet
      *
      * @param OutputInterface $writer
      * @param string          $url A repository URL
-     * @param bool            $verifySSL Verify SSL?
+     * @param bool            $verifySsl Verify SSL?
      */
-    public function loadFromGithub(OutputInterface $writer, $url, $verifySSL = false)
+    public function loadFromGithub(OutputInterface $writer, $url, $verifySsl = false)
     {
-        var_dump($url, $verifySSL);
+        var_dump($url, $verifySsl);
 
         var_dump($this->workingDirectory);
         var_dump($this->exportPath);

@@ -2,13 +2,11 @@
 
 namespace SimpleCommands;
 
-use SimpleCommands\Reflection\ArrayType;
 use SimpleCommands\Reflection\ObjectType;
 use SimpleCommands\Reflection\ParameterDefinition;
-
-use function Functional\partial_method;
-use function PatternMatcher\option_matcher;
 use function Colada\x;
+use function PatternMatcher\option_matcher;
+use Stringy\StaticStringy;
 
 class Argument
 {
@@ -30,7 +28,7 @@ class Argument
      */
     public function getName()
     {
-        return $this->parameter->getName();
+        return (string) StaticStringy::dasherize($this->parameter->getName());
     }
 
     /**
@@ -80,10 +78,13 @@ class Argument
     }
 
     /**
+     * "int", "string", "array" and so on
+     *
      * @return bool
      */
     public function isInternal()
     {
+        // TODO What about "callable"?
         return $this->getClass()->isDefined();
     }
 
