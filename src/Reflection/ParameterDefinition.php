@@ -2,10 +2,11 @@
 
 namespace SimpleCommands\Reflection;
 
-use phpDocumentor\Reflection\DocBlock\Tag\ParamTag;
+use phpDocumentor\Reflection\DocBlock\Tags\Param;
 use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
+use ReflectionException;
 use ReflectionParameter;
 
 class ParameterDefinition extends AbstractDefinition
@@ -16,16 +17,11 @@ class ParameterDefinition extends AbstractDefinition
     private $parameter;
 
     /**
-     * @var ParamTag
+     * @var Param
      */
     private $tag;
 
-    /**
-     * @param ReflectionParameter $parameter
-     * @param ParamTag $tag
-     * @param Reflector $reflector
-     */
-    public function __construct(ReflectionParameter $parameter, ParamTag $tag, Reflector $reflector)
+    public function __construct(ReflectionParameter $parameter, Param $tag, Reflector $reflector)
     {
         parent::__construct($reflector);
 
@@ -33,21 +29,19 @@ class ParameterDefinition extends AbstractDefinition
         $this->tag = $tag;
     }
 
-    /**
-     * @return Type
-     */
-    public function getType()
+    public function getType(): Type
     {
         // ReflectionType::getName() is available only from PHP 7.1.0
-        $type = $this->parameter->hasType() ? $this->parameter->getType()->getName() : $this->tag->getType();
+        $type = $this->parameter->hasType() ? $this->parameter->getType()->getName() : (string) $this->tag->getType();
 
         $scalarType = ScalarType::create($type);
 
-        $objectType = Option::fromReturn(function () {
-            // TODO Support class from PHPDoc?..
-            return ($class = $this->parameter->getClass()) // Returns ReflectionClass object or NULL if none
-                ? new ObjectType($this->reflector->reflectClass($class))
-                : null;
+        $objectType = Option::fromReturn(function () use ($type) {
+            try {
+                return new ObjectType($this->reflector->reflectClass($type));
+            } catch (ReflectionException $exception) {
+                return null;
+            }
         });
 
         $anyType = new Type($type);
@@ -55,34 +49,25 @@ class ParameterDefinition extends AbstractDefinition
         return $scalarType->orElse($objectType)->getOrElse($anyType);
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->parameter->getName();
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->tag->getDescription();
     }
 
-    /**
-     * @return bool
-     */
-    public function hasDefaultValue()
+    public function hasDefaultValue(): bool
     {
         return $this->getDefaultValue()->isDefined();
     }
 
-    /**
-     * @return Option
-     */
-    public function getDefaultValue()
+    public function getDefaultValue(): Option
     {
-        $value = None::create();
-        if ($this->parameter->isDefaultValueAvailable()) {
-            $value = new Some($this->parameter->getDefaultValue());
-        }
-
-        return $value;
+        return $this->parameter->isDefaultValueAvailable()
+            ? new Some($this->parameter->getDefaultValue())
+            : None::create();
     }
 }

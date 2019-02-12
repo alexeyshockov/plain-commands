@@ -17,10 +17,7 @@ class ObjectType extends Type
         $this->class = $class;
     }
 
-    /**
-     * @return ClassDefinition
-     */
-    public function getClass()
+    public function getClass(): ClassDefinition
     {
         return $this->class;
     }

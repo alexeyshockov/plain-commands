@@ -40,7 +40,7 @@ abstract class CommandOption implements InputHandler
      * @param SymfonyCommand                      $target
      * @param PropertyDefinition|MethodDefinition $definition
      *
-     * @return Option
+     * @return Option<self>
      */
     public static function create(CommandSet $container, SymfonyCommand $target, $definition)
     {

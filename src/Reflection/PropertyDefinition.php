@@ -3,6 +3,8 @@
 namespace SimpleCommands\Reflection;
 
 use phpDocumentor\Reflection\DocBlock;
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
+use phpDocumentor\Reflection\Types\String_;
 use PhpOption\Option;
 use ReflectionException;
 use ReflectionProperty;
@@ -16,12 +18,12 @@ class PropertyDefinition extends AbstractDefinition
     private $property;
 
     /**
-     * @var DocBlock
+     * @var Option<DocBlock>
      */
     private $docBlock;
 
     /**
-     * @var Option
+     * @var Option<Var_>
      */
     private $tag;
 
@@ -37,16 +39,16 @@ class PropertyDefinition extends AbstractDefinition
         }
 
         // Try to find @var tag for the property.
-        $this->tag = Option::fromArraysValue($this->docBlock->getTagsByName('var'), 0);
+        $this->tag = Option::fromArraysValue(
+            $this->docBlock->map(x()->getTagsByName('var'))->getOrElse([]),
+            0
+        );
     }
 
-    /**
-     * @return Type
-     */
-    public function getType()
+    public function getType(): Type
     {
         // In our domain all properties are string by default, if nothing else is specified
-        $type = $this->tag->map(x()->getType())->getOrElse('string');
+        $type = (string) $this->tag->map(x()->getType())->getOrElse(new String_());
 
         // TODO Remove duplication with ParameterDefinition::getType()
 
@@ -54,7 +56,7 @@ class PropertyDefinition extends AbstractDefinition
 
         $objectType = Option::fromReturn(function () use ($type) {
             try {
-                new ObjectType($this->reflector->reflectClass($type));
+                return new ObjectType($this->reflector->reflectClass($type));
             } catch (ReflectionException $exception) {
                 return null;
             }
@@ -65,27 +67,22 @@ class PropertyDefinition extends AbstractDefinition
         return $scalarType->orElse($objectType)->getOrElse($anyType);
     }
 
-    /**
-     * @param string $type
-     *
-     * @return Option
-     */
-    public function readAnnotation($type)
+    public function readAnnotation(string $type): Option
     {
         return $this->reflector->readAnnotation($this->property, $type);
     }
 
-    public function getShortDescription()
+    public function getShortDescription(): string
     {
-        return $this->docBlock->getShortDescription();
+        return $this->docBlock->map(x()->getSummary())->getOrElse('');
     }
 
-    public function getLongDescription()
+    public function getLongDescription(): string
     {
-        return $this->docBlock->getLongDescription();
+        return $this->docBlock->map(x()->getDescription())->getOrElse('');
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->property->getName();
     }
@@ -103,9 +100,13 @@ class PropertyDefinition extends AbstractDefinition
     /**
      * @param object $object
      * @param mixed  $value
+     *
+     * @return $this
      */
     public function setValue($object, $value)
     {
         $this->property->setValue($object, $value);
+
+        return $this;
     }
 }

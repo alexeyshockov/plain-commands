@@ -2,6 +2,8 @@
 
 namespace SimpleCommands\Reflection;
 
+use InvalidArgumentException;
+
 class ObjectDefinition extends AbstractDefinition
 {
     /**
@@ -9,12 +11,12 @@ class ObjectDefinition extends AbstractDefinition
      */
     private $object;
 
-    /**
-     * @param object $object
-     * @param Reflector $reflector
-     */
     public function __construct($object, Reflector $reflector)
     {
+        if (!is_object($object)) {
+            throw new InvalidArgumentException('Object is expected');
+        }
+
         parent::__construct($reflector);
 
         $this->object = $object;
@@ -28,7 +30,7 @@ class ObjectDefinition extends AbstractDefinition
         return $this->object;
     }
 
-    public function getClass()
+    public function getClass(): ClassDefinition
     {
         return $this->reflector->reflectClass(get_class($this->object));
     }

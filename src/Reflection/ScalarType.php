@@ -19,7 +19,7 @@ class ScalarType extends Type
      *
      * @param string $name
      *
-     * @return Option
+     * @return Option<self>
      */
     public static function create(string $name)
     {

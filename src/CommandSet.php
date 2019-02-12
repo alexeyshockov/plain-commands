@@ -30,10 +30,7 @@ class CommandSet
         $this->annotation = $object->getClass()->readAnnotation(Annotations\CommandSet::class);
     }
 
-    /**
-     * @return string
-     */
-    public function getNamespace()
+    public function getNamespace(): string
     {
         return $this->annotation->map(function (Annotations\CommandSet $annotation) {
             return $annotation->value ?: (string) StaticStringy::dasherize($this->definition->getClass()->getName());

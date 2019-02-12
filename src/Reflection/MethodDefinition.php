@@ -6,7 +6,7 @@ use LengthException;
 use phpDocumentor\Reflection\DocBlock;
 use PhpOption\Option;
 use ReflectionMethod;
-
+use function Colada\x;
 use function Functional\map;
 use function Functional\zip;
 
@@ -18,7 +18,7 @@ class MethodDefinition extends AbstractDefinition
     private $method;
 
     /**
-     * @var DocBlock
+     * @var Option<DocBlock>
      */
     private $docBlock;
 
@@ -44,14 +44,14 @@ class MethodDefinition extends AbstractDefinition
         return $this->reflector->readAnnotation($this->method, $type);
     }
 
-    public function getShortDescription()
+    public function getShortDescription(): string
     {
-        return $this->docBlock->getShortDescription();
+        return $this->docBlock->map(x()->getSummary())->getOrElse('');
     }
 
-    public function getLongDescription()
+    public function getLongDescription(): string
     {
-        return $this->docBlock->getLongDescription();
+        return $this->docBlock->map(x()->getDescription())->getOrElse('');
     }
 
     public function getName()
@@ -60,17 +60,17 @@ class MethodDefinition extends AbstractDefinition
     }
 
     /**
-     * @throws LengthException If there is mismatch between "param" tags and real parameters.
+     * @throws LengthException If there is mismatch between @param tags and real parameters
      *
      * @return ParameterDefinition[]
      */
     public function getParameters()
     {
         $parameters = $this->method->getParameters();
-        $tags = $this->docBlock->getTagsByName('param');
+        $tags = $this->docBlock->map(x()->getTagsByName('param'))->getOrElse([]);
 
         if (count($parameters) !== count($tags)) {
-            throw new LengthException('Parameters number is not equal to @var tags number.');
+            throw new LengthException('Number of parameters is not equal to number of @var tags');
         }
 
         return map(zip($parameters, $tags), function ($data) {
@@ -84,7 +84,7 @@ class MethodDefinition extends AbstractDefinition
      *
      * @return mixed
      */
-    public function invokeFor($object, $arguments)
+    public function invokeFor($object, array $arguments)
     {
         return $this->method->invokeArgs($object, $arguments);
     }

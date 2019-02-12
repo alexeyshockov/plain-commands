@@ -28,7 +28,7 @@ class Argument implements InputHandler
      * @param SymfonyCommand      $target
      * @param ParameterDefinition $definition
      *
-     * @return Option
+     * @return Option<self>
      */
     public static function create(SymfonyCommand $target, ParameterDefinition $definition)
     {

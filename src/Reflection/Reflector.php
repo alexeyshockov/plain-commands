@@ -2,10 +2,13 @@
 
 namespace SimpleCommands\Reflection;
 
+use InvalidArgumentException;
 use phpDocumentor\Reflection\DocBlock;
+use phpDocumentor\Reflection\DocBlockFactory;
+use PhpOption\None;
 use PhpOption\Option;
+use PhpOption\Some;
 use ReflectionClass;
-use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
 
@@ -17,6 +20,11 @@ class Reflector
     private $annotationReader;
 
     /**
+     * @var DocBlockFactory
+     */
+    private $docBlockFactory;
+
+    /**
      * Doctrine's annotation loader must be registered to working with annotations! See
      * AnnotationRegistry::registerLoader() for details.
      *
@@ -25,14 +33,10 @@ class Reflector
     public function __construct($annotationReader)
     {
         $this->annotationReader = $annotationReader;
+        $this->docBlockFactory = DocBlockFactory::createInstance();
     }
 
-    /**
-     * @param object $object
-     *
-     * @return ObjectDefinition
-     */
-    public function reflectObject($object)
+    public function reflectObject($object): ObjectDefinition
     {
         return new ObjectDefinition($object, $this);
     }
@@ -40,11 +44,11 @@ class Reflector
     /**
      * @param string|ReflectionClass $class
      *
-     * @throws ReflectionException If the $class is not a valid name
+     * @throws \ReflectionException If the class does not exist
      *
      * @return ClassDefinition
      */
-    public function reflectClass($class)
+    public function reflectClass($class): ClassDefinition
     {
         return new ClassDefinition(
             ($class instanceof ReflectionClass) ? $class : new ReflectionClass($class),
@@ -55,23 +59,20 @@ class Reflector
     /**
      * @param \Reflector $target
      *
-     * @return DocBlock
+     * @return Option<DocBlock>
      */
-    public function readDocBlock(\Reflector $target)
+    public function readDocBlock(\Reflector $target): Option
     {
-        return new DocBlock($target);
+        try {
+            return new Some($this->docBlockFactory->create($target));
+        } catch (InvalidArgumentException $exception) {
+            return None::create();
+        }
     }
 
-    /**
-     * @param \Reflector $target
-     * @param string $type
-     *
-     * @return Option
-     */
-    public function readAnnotation(\Reflector $target, $type)
+    public function readAnnotation(\Reflector $target, string $type): Option
     {
         $annotation = null;
-        // TODO To pattern matching.
         if ($target instanceof ReflectionClass) {
             $annotation = $this->annotationReader->getClassAnnotation($target, $type);
         } elseif ($target instanceof ReflectionMethod) {

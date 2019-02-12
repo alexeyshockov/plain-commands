@@ -39,7 +39,7 @@ class Command
     private $name;
 
     /**
-     * @var Option
+     * @var Option<Annotations\Command>
      */
     private $annotation;
 
@@ -61,7 +61,7 @@ class Command
      * @param CommandSet       $container
      * @param MethodDefinition $definition
      *
-     * @return Option
+     * @return Option<self>
      */
     public static function create(CommandSet $container, MethodDefinition $definition)
     {
@@ -193,18 +193,13 @@ class Command
     }
 
     /**
-     * Command name with the namespace (from the command set)
+     * Command name with the namespace (from the command set), like "doctrine:create"
      *
      * @return string
      */
     public function getFullName(): string
     {
-        $name = $this->name;
-        if ($this->container->getNamespace() !== '') {
-            $name = $this->container->getNamespace() . ':' . $name;
-        }
-
-        return $name;
+        return implode(':', array_filter([$this->container->getNamespace(), $this->name]));
     }
 
     public function getDescription(): string
@@ -222,7 +217,7 @@ class Command
 
             $this->parameters[] = $runtimeArgument->orElse($booleanOption)->orElse($argument)->getOrThrow(
                 // TODO Add FQCN, like \SimpleCommands\Examples\RepositoryGrabber::loadFromGitHub()
-                new InvalidArgumentException("Parameter {$parameter->getName()} cannot be processed")
+                new InvalidArgumentException("Parameter \${$parameter->getName()} cannot be processed")
             );
         }
     }
