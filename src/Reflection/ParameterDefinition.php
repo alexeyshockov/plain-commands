@@ -38,25 +38,21 @@ class ParameterDefinition extends AbstractDefinition
      */
     public function getType()
     {
-        if (
-            ($this->parameter->hasType() && $this->parameter->isArray())
-            ||
-            // TODO string[], int[] and so on
-            in_array('array', $this->tag->getTypes())
-        ) {
-            $type = new ArrayType();
-        } elseif ($this->parameter->getClass()) {
-            $type = new ObjectType($this->reflector->reflectClass($this->parameter->getClass()));
-        } else {
-            $type = new UnknownType($this->tag->getType());
-        }
+        // ReflectionType::getName() is available only from PHP 7.1.0
+        $type = $this->parameter->hasType() ? $this->parameter->getType()->getName() : $this->tag->getType();
 
-        return $type;
-    }
+        $scalarType = ScalarType::create($type);
 
-    public function isArrayType()
-    {
-        return $this->getType() instanceof ArrayType;
+        $objectType = Option::fromReturn(function () {
+            // TODO Support class from PHPDoc?..
+            return ($class = $this->parameter->getClass()) // Returns ReflectionClass object or NULL if none
+                ? new ObjectType($this->reflector->reflectClass($class))
+                : null;
+        });
+
+        $anyType = new Type($type);
+
+        return $scalarType->orElse($objectType)->getOrElse($anyType);
     }
 
     public function getName()

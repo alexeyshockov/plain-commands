@@ -5,6 +5,7 @@ namespace SimpleCommands\Reflection;
 use phpDocumentor\Reflection\DocBlock;
 use PhpOption\Option;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
 
@@ -39,7 +40,7 @@ class Reflector
     /**
      * @param string|ReflectionClass $class
      *
-     * @throws \ReflectionException If the $class is not a valid name
+     * @throws ReflectionException If the $class is not a valid name
      *
      * @return ClassDefinition
      */

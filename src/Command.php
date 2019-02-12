@@ -7,19 +7,14 @@ use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
 use SimpleCommands\Annotations;
-use SimpleCommands\Reflection\ClassDefinition;
 use SimpleCommands\Reflection\MethodDefinition;
+use SimpleCommands\Reflection\ParameterDefinition;
 use Stringy\StaticStringy;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
-use Symfony\Component\Console\Helper\HelperInterface;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Colada\x;
 use function Functional\map;
-use function Functional\partial_left;
-use function Functional\reject;
-use function PatternMatcher\option_matcher;
 
 class Command
 {
@@ -28,12 +23,15 @@ class Command
      */
     private $container;
 
-    private $options;
+    /**
+     * @var CommandOption[]
+     */
+    private $globalOptions = [];
 
     /**
      * @var MethodDefinition
      */
-    private $method;
+    private $definition;
 
     /**
      * @var string
@@ -46,49 +44,80 @@ class Command
     private $annotation;
 
     /**
-     * "Silent" version of constructor (optional return value instead of an exception).
+     * @var SymfonyCommand
+     */
+    private $target;
+
+    /**
+     * Array of handlers, ordered strictly to the method's parameters
      *
-     * @param CommandSet $container
-     * @param array $options
-     * @param MethodDefinition $method
+     * @var InputHandler[]
+     */
+    private $parameters = [];
+
+    /**
+     * "Silent" version of constructor (optional return value instead of an exception)
+     *
+     * @param CommandSet       $container
+     * @param MethodDefinition $definition
      *
      * @return Option
      */
-    public static function create(CommandSet $container, $options, MethodDefinition $method)
+    public static function create(CommandSet $container, MethodDefinition $definition)
     {
         try {
-            $command = new Some(new static($container, $options, $method));
+            return new Some(new static($container, $definition));
         } catch (InvalidArgumentException $exception) {
-            $command = None::create();
+            return None::create();
         }
-
-        return $command;
     }
 
     /**
-     * @throws InvalidArgumentException If method is not marked as a command.
+     * @throws InvalidArgumentException If the method is not marked as a command
      *
-     * @param CommandSet $container
-     * @param array $options
-     * @param MethodDefinition $method
+     * @param CommandSet       $container
+     * @param MethodDefinition $definition
      */
-    private function __construct(CommandSet $container, $options, MethodDefinition $method)
+    private function __construct(CommandSet $container, MethodDefinition $definition)
     {
         $this->container = $container;
-        $this->options = $options;
-        $this->method = $method;
-        $this->annotation = $method->readAnnotation(Annotations\Command::class);
+        $this->definition = $definition;
+        $this->annotation = $definition->readAnnotation(Annotations\Command::class);
 
         $this->defineName();
+
+        $this->target = $this->configure(new SymfonyCommand($this->getFullName()));
     }
 
     /**
-     * @param SymfonyCommand $target
+     * @param CommandOption[] $commandSetOptions
      *
-     * @return SymfonyCommand
+     * @return $this
      */
-    public function configure(SymfonyCommand $target)
+    public function setGlobalOptions(array $commandSetOptions)
     {
+        $this->globalOptions = $commandSetOptions;
+
+        return $this;
+    }
+
+    public function getTarget(): SymfonyCommand
+    {
+        return $this->target;
+    }
+
+    public function isEqualTo(Command $command): bool
+    {
+        return $this->getFullName() === $command->getFullName();
+    }
+
+    private function configure(SymfonyCommand $target): SymfonyCommand
+    {
+        /*
+         * Arguments, options
+         */
+        $this->buildParameters($target);
+
         $target
             ->setAliases($this->getShortcuts())
             ->setDescription($this->getDescription())
@@ -96,95 +125,41 @@ class Command
             // TODO ->addHelp()
         ;
 
-        /*
-         * Arguments
-         */
-
-        /** @var Argument $argument */
-        foreach (reject($this->getArguments(), x()->isInternal()) as $argument) {
-            $mode = $argument->isRequired() ? InputArgument::REQUIRED : InputArgument::OPTIONAL;
-            if ($argument->isArray()) {
-                $mode |= InputArgument::IS_ARRAY;
-            }
-
-            $target->addArgument(
-                $argument->getName(),
-                $mode,
-                $argument->getDescription(),
-                $argument->getDefaultValue()->getOrElse(null)
-            );
-        }
-
-        /*
-         * Options
-         */
-
-        // Apply each option to the target command
-        map($this->options, x()->configure($target));
-
-        return $target->setCode(partial_left($this, $target));
+        return $target->setCode($this);
     }
 
     /**
      * @see SymfonyCommand::execute()
      * @see SymfonyCommand::setCode()
      *
-     * @param SymfonyCommand $target
      * @param InputInterface $input
      * @param OutputInterface $output
      *
      * @return int
      */
-    public function __invoke(SymfonyCommand $target, InputInterface $input, OutputInterface $output)
+    public function __invoke(InputInterface $input, OutputInterface $output)
     {
         /*
          * Arguments
          */
 
-        $matcher = option_matcher(function ($className, ClassDefinition $class) {
-            return $class->implementsInterface($className);
-        })
-            ->addCase(InputInterface::class, $input)
-            ->addCase(OutputInterface::class, $output)
-            ->addCase(HelperInterface::class, function (ClassDefinition $class) use ($target) {
-                foreach ($target->getHelperSet() as $helper) {
-                    if ($class->isInterfaceOf($helper)) {
-                        return $helper;
-                    }
-                }
-
-                throw new InvalidArgumentException("Helper with type {$class->getName()} is not registered.");
-            })
-            // TODO Stopwatch timer?..
-        ;
-
         $arguments = [];
-        foreach ($this->getArguments() as $argument) {
-            if (!$argument->isInternal()) {
-                $arguments[] = $input->getArgument($argument->getName());
-            } else {
-                $arguments[] = $argument->getClass()
-                    ->flatMap($matcher)
-                    ->getOrThrow(new InvalidArgumentException(
-                        'Parameter $' . $argument->getName() . ': type is missed or not supported.'
-                    ));
-            }
+        /** @var InputHandler $handler */
+        foreach ($this->parameters as $handler) {
+            $arguments[] = $handler->execute($input, $output);
         }
 
         /*
-         * Options
+         * Global options
          */
 
-        map($this->options, x()->execute($input));
+        map($this->globalOptions, x()->execute($input, $output));
 
         // Use return value from the command for the exit code (as in usual Symfony commands).
-        return $this->method->invokeFor($this->container->getObject(), $arguments);
+        return $this->definition->invokeFor($this->container->getObject(), $arguments);
     }
 
-    /**
-     * @return array
-     */
-    public function getShortcuts()
+    public function getShortcuts(): array
     {
         return $this->annotation->map(x()->shortcuts)->getOrElse([]);
     }
@@ -198,7 +173,7 @@ class Command
     {
         $this->name = $this->annotation
             ->map(function ($annotation) {
-                return $annotation->value ?: StaticStringy::dasherize($this->method->getName());
+                return $annotation->value ?: (string) StaticStringy::dasherize($this->definition->getName());
             })
             // Let's stick with annotations for now. Skip this feature.
 //            ->orElse(Option::fromReturn(function () {
@@ -207,25 +182,22 @@ class Command
 //                }
 //            }))
             ->getOrThrow(
-                new InvalidArgumentException("Method {$this->method->getName()}() is not a command.")
+                new InvalidArgumentException("Method {$this->definition->getName()}() is not a command.")
             )
         ;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
     /**
-     * Name with namespace from the command set
+     * Command name with the namespace (from the command set)
      *
      * @return string
      */
-    public function getFullName()
+    public function getFullName(): string
     {
         $name = $this->name;
         if ($this->container->getNamespace() !== '') {
@@ -235,21 +207,23 @@ class Command
         return $name;
     }
 
-    /**
-     * @return string
-     */
-    public function getDescription()
+    public function getDescription(): string
     {
-        return $this->method->getShortDescription();
+        return $this->definition->getShortDescription();
     }
 
-    /**
-     * @return Argument[]
-     */
-    public function getArguments()
+    private function buildParameters(SymfonyCommand $target)
     {
-        return map($this->method->getParameters(), function ($parameter) {
-            return new Argument($parameter);
-        });
+        /** @var ParameterDefinition $parameter */
+        foreach ($this->definition->getParameters() as $parameter) {
+            $runtimeArgument = RuntimeArgument::create($target, $parameter);
+            $booleanOption = ParameterOption::create($target, $parameter);
+            $argument = Argument::create($target, $parameter);
+
+            $this->parameters[] = $runtimeArgument->orElse($booleanOption)->orElse($argument)->getOrThrow(
+                // TODO Add FQCN, like \SimpleCommands\Examples\RepositoryGrabber::loadFromGitHub()
+                new InvalidArgumentException("Parameter {$parameter->getName()} cannot be processed")
+            );
+        }
     }
 }

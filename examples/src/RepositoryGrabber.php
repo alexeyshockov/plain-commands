@@ -3,7 +3,6 @@
 namespace SimpleCommands\Examples;
 
 use SimpleCommands\Annotations\Command;
-use SimpleCommands\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**

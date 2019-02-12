@@ -2,25 +2,31 @@
 
 namespace SimpleCommands\Reflection;
 
-abstract class Type
+class Type
 {
     /**
      * @var string
      */
-    private $name;
+    protected $name;
 
-    /**
-     * @param string $name
-     */
-    public function __construct($name)
+    public function __construct(string $name = 'mixed')
     {
-        $this->name = strtolower($name);
+        $this->name = strtolower($name) ?: 'mixed';
+
+        // TODO What about invalid types?..
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function isBoolean()
+    {
+        return in_array($this->name, ['boolean', 'bool']);
+    }
+
+    public function isArray()
+    {
+        return $this->name === 'array';
+    }
+
+    public function __toString()
     {
         return $this->name;
     }

@@ -5,7 +5,7 @@ namespace SimpleCommands;
 use InvalidArgumentException;
 use SimpleCommands\Reflection\Reflector;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Command\Command as SymfonyCommand;
+use function Functional\flatten;
 
 class CommandBuilder
 {
@@ -15,9 +15,9 @@ class CommandBuilder
     private $reflector;
 
     /**
-     * @var SymfonyCommand[]
+     * @var CommandSet[]
      */
-    private $commands;
+    private $commandSets = [];
 
     public function __construct(Reflector $reflector)
     {
@@ -33,12 +33,7 @@ class CommandBuilder
      */
     public function addCommandsFrom($object)
     {
-        $commandSet = new CommandSet($this->reflector->reflectObject($object));
-
-        foreach ($commandSet->buildCommands() as $command) {
-            // Add _initialized_ command (aliases must be prepared before this step).
-            $this->commands[] = $command->configure(new SymfonyCommand($command->getFullName()));
-        }
+        $this->commandSets[] = new CommandSet($this->reflector->reflectObject($object));
 
         return $this;
     }
@@ -50,8 +45,15 @@ class CommandBuilder
      */
     public function applyTo(Application $app)
     {
-        foreach ($this->commands as $command) {
-            $app->add($command);
+        $commands = [];
+        foreach ($this->commandSets as $commandSet) {
+            $commands[] = $commandSet->buildCommands();
+        }
+        $commands = flatten($commands);
+
+        /** @var Command $command */
+        foreach ($commands as $command) {
+            $app->add($command->getTarget());
 
             // This isn't supported and should be done by the end user directly.
 //            if ($command->isDefault()) {

@@ -2,9 +2,6 @@
 
 namespace SimpleCommands\Annotations;
 
-use Doctrine\Common\Annotations\Annotation;
-use Doctrine\Common\Annotations\Annotation\Target;
-
 /**
  * @Annotation
  * @Target({"CLASS"})
@@ -12,9 +9,9 @@ use Doctrine\Common\Annotations\Annotation\Target;
 class CommandSet
 {
     /**
-     * Namespace of command set.
+     * Namespace for the command set
      *
      * @var string
      */
-    public $value = "";
+    public $value = '';
 }

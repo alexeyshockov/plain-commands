@@ -29,7 +29,6 @@
         "alexeyshockov/colada-x": "@dev"
     },
     "require-dev": {
-        "phpspec/phpspec": "~2.5",
         "phpunit/phpunit": "~7.0",
         "symfony/stopwatch": "~3.0 | ~4.0",
         "symfony/dependency-injection": "~3.0 | ~4.0"
@@ -44,7 +43,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "SimpleCommands\\": "examples/src"
+            "SimpleCommands\\Examples\\": "examples/src",
+            "SimpleCommands\\Tests\\": "tests/src"
         },
         "files": [
             "vendor/phpunit/phpunit/src/Framework/Assert/Functions.php"

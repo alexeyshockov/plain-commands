@@ -8,14 +8,16 @@ use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
 use SimpleCommands\Reflection\ParameterDefinition;
-use SimpleCommands\Reflection\ScalarType;
 use Stringy\StaticStringy;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Argument implements InputHandler
+/**
+ * Represents a boolen method's parameter (this is the only case when a parameter is mapped to a command option)
+ */
+class ParameterOption implements InputHandler
 {
     /**
      * @var ParameterDefinition
@@ -43,8 +45,8 @@ class Argument implements InputHandler
 
     public function __construct(SymfonyCommand $target, ParameterDefinition $definition)
     {
-        if (!$definition->getType() instanceof ScalarType) {
-            throw new InvalidArgumentException('Only scalar types are supported for command arguments');
+        if (!$definition->getType()->isBoolean()) {
+            throw new InvalidArgumentException('Only boolean');
         }
 
         $this->definition = $definition;
@@ -62,33 +64,20 @@ class Argument implements InputHandler
         return $this->definition->getDescription();
     }
 
-    public function isRequired(): bool
-    {
-        return !$this->definition->hasDefaultValue();
-    }
-
-    public function getDefaultValue(): Option
-    {
-        return $this->definition->getDefaultValue();
-    }
-
     private function configure(SymfonyCommand $target)
     {
-        $mode = $this->isRequired() ? InputArgument::REQUIRED : InputArgument::OPTIONAL;
-        if ($this->definition->getType()->isArray()) {
-            $mode |= InputArgument::IS_ARRAY;
-        }
-
-        $target->addArgument(
+        $target->addOption(
             $this->getName(),
-            $mode,
-            $this->getDescription(),
-            $this->getDefaultValue()->getOrElse(null)
+            null,
+            InputOption::VALUE_NONE,
+            $this->getDescription()
         );
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        return $input->getArgument($this->getName());
+        return $input->hasOption($this->getName());
     }
+
+
 }

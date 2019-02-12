@@ -3,11 +3,11 @@
 namespace SimpleCommands;
 
 use InvalidArgumentException;
-use PhpOption\None;
 use PhpOption\Option;
-use PhpOption\Some;
 use SimpleCommands\Reflection\MethodDefinition;
 use SimpleCommands\Reflection\ParameterDefinition;
+use SimpleCommands\Reflection\Type;
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use function Stringy\create as str;
 
 class MethodOption extends CommandOption
@@ -17,34 +17,15 @@ class MethodOption extends CommandOption
      */
     private $parameterDefinition;
 
-    /**
-     * "Silent" version of constructor (optional return value instead of an exception).
-     *
-     * @param CommandSet       $container
-     * @param MethodDefinition $definition
-     *
-     * @return Option
-     */
-    public static function create(CommandSet $container, MethodDefinition $definition)
+    public function __construct(CommandSet $container, SymfonyCommand $target, MethodDefinition $definition)
     {
-        try {
-            $option = new Some(new static($container, $definition));
-        } catch (InvalidArgumentException $exception) {
-            $option = None::create();
-        }
-
-        return $option;
-    }
-
-    public function __construct(CommandSet $container, MethodDefinition $definition)
-    {
-        parent::__construct($container, $definition);
-
-        $parameters = $this->definition->getParameters();
+        $parameters = $definition->getParameters();
         if (count($parameters) < 1) {
-            throw new \LogicException('A setter method for a command option must have at least one parameter');
+            throw new InvalidArgumentException('A setter method for a command option must have at least one parameter');
         }
         $this->parameterDefinition = $parameters[0];
+
+        parent::__construct($container, $target, $definition);
     }
 
     public function getName()
@@ -53,13 +34,6 @@ class MethodOption extends CommandOption
 
         // From the annotation (first) or from the definition (object property or method)
         return $this->annotation->value ?: $nameFromDefinition;
-    }
-
-    public function isArray()
-    {
-        $parameter = $this->definition->getParameters()[0];
-
-        return $parameter->isArrayType();
     }
 
     /**
@@ -76,5 +50,13 @@ class MethodOption extends CommandOption
             $this->container->getObject(),
             [$value]
         );
+    }
+
+    /**
+     * @return Type
+     */
+    public function getType()
+    {
+        return $this->parameterDefinition->getType();
     }
 }

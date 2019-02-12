@@ -19,9 +19,4 @@ class Option
      * @var array<string>
      */
     public $shortcuts = [];
-
-    /**
-     * @var bool
-     */
-    public $valueRequired = true;
 }

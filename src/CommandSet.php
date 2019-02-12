@@ -2,19 +2,19 @@
 
 namespace SimpleCommands;
 
+use function Functional\map;
+use SimpleCommands\Annotations;
+use SimpleCommands\Reflection\ObjectDefinition;
+use Stringy\StaticStringy;
 use function Functional\flat_map;
 use function Functional\partial_left;
-use SimpleCommands\Reflection\ObjectDefinition;
-use SimpleCommands\Annotations;
-
-use function Colada\x;
 
 class CommandSet
 {
     /**
      * @var ObjectDefinition
      */
-    private $object;
+    private $definition;
 
     /**
      * @var \PhpOption\Option
@@ -26,7 +26,7 @@ class CommandSet
      */
     public function __construct(ObjectDefinition $object)
     {
-        $this->object = $object;
+        $this->definition = $object;
         $this->annotation = $object->getClass()->readAnnotation(Annotations\CommandSet::class);
     }
 
@@ -35,7 +35,9 @@ class CommandSet
      */
     public function getNamespace()
     {
-        return $this->annotation->map(x()->value)->getOrElse('');
+        return $this->annotation->map(function (Annotations\CommandSet $annotation) {
+            return $annotation->value ?: (string) StaticStringy::dasherize($this->definition->getClass()->getName());
+        })->getOrElse('');
     }
 
     /**
@@ -43,36 +45,43 @@ class CommandSet
      */
     public function getObject()
     {
-        return $this->object->getObject();
+        return $this->definition->getObject();
     }
 
     /**
-     * @return Command[]
+     * @return iterable Command[] generator
      */
     public function buildCommands()
     {
         // flat_map() treats Option instances as traversable collections with 1 or 0 elements. So it "opens" them.
-        return flat_map(
-            $this->object->getClass()->getMethods(),
-            partial_left([Command::class, 'create'], $this, $this->buildOptions())
+        $commands = flat_map(
+            $this->definition->getClass()->getMethods(),
+            partial_left([Command::class, 'create'], $this)
         );
+
+        /** @var Command $command */
+        foreach ($commands as $command) {
+            yield $command->setGlobalOptions($this->buildOptionsFor($command));
+        }
     }
 
     /**
+     * @param Command $command
+     *
      * @return PropertyOption[]
      */
-    public function buildOptions()
+    private function buildOptionsFor(Command $command)
     {
         // flat_map() treats Option instances as traversable collections with 1 or 0 elements. So it "opens" them.
         $properties = flat_map(
-            $this->object->getClass()->getProperties(),
-            partial_left([PropertyOption::class, 'create'], $this)
+            $this->definition->getClass()->getProperties(),
+            partial_left([PropertyOption::class, 'create'], $this, $command->getTarget())
         );
 
         // flat_map() treats Option instances as traversable collections with 1 or 0 elements. So it "opens" them.
         $methods = flat_map(
-            $this->object->getClass()->getMethods(),
-            partial_left([MethodOption::class, 'create'], $this)
+            $this->definition->getClass()->getMethods(),
+            partial_left([MethodOption::class, 'create'], $this, $command->getTarget())
         );
 
         return array_merge($properties, $methods);
