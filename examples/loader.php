@@ -1,8 +1,8 @@
 #!/usr/bin/env php
 <?php
 
-use SimpleCommands\CommandBuilder;
-use SimpleCommands\Examples\RepositoryGrabber;
+use PlainCommands\CommandBuilder;
+use PlainCommands\Examples\RepositoryGrabber;
 use Symfony\Component\Console\Application;
 
 /** @var CommandBuilder $builder */

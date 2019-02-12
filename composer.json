@@ -1,12 +1,12 @@
 {
-    "name":        "alexeyshockov/simple-commands",
+    "name":        "alexeyshockov/plain-commands",
     "type":        "library",
     "description": "Wrapper around Symfony Console Component to define commands easily",
-    "keywords":    ["console", "symfony", "cli"],
-    "homepage":    "http://github.com/alexeyshockov/simple-commands",
+    "keywords":    ["console", "symfony", "cli", "annotations"],
+    "homepage":    "http://github.com/alexeyshockov/plain-commands",
     "license":     "MIT",
     "support":     {
-        "issues": "https://github.com/alexeyshockov/simple-commands/issues"
+        "issues": "https://github.com/alexeyshockov/plain-commands/issues"
     },
     "authors": [
         {
@@ -34,13 +34,13 @@
     },
     "autoload": {
         "psr-4": {
-            "SimpleCommands\\": "src"
+            "PlainCommands\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "SimpleCommands\\Examples\\": "examples/src",
-            "SimpleCommands\\Tests\\": "tests/src"
+            "PlainCommands\\Examples\\": "examples/src",
+            "PlainCommands\\Tests\\": "tests/src"
         },
         "files": [
             "vendor/phpunit/phpunit/src/Framework/Assert/Functions.php"

@@ -1,8 +1,8 @@
 <?php
 
-namespace SimpleCommands\Examples;
+namespace PlainCommands\Examples;
 
-use SimpleCommands\Annotations\Command;
+use PlainCommands\Annotations\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**

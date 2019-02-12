@@ -1,9 +1,9 @@
 <?php
 
-namespace SimpleCommands;
+namespace PlainCommands;
 
 use PhpOption\Option;
-use SimpleCommands\Reflection\Type;
+use PlainCommands\Reflection\Type;
 
 class PropertyOption extends CommandOption
 {

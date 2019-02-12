@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleCommands;
+namespace PlainCommands;
 
 class SimpleApp
 {

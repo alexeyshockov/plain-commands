@@ -1,14 +1,14 @@
 <?php
 
-namespace SimpleCommands;
+namespace PlainCommands;
 
 use InvalidArgumentException;
 use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
-use SimpleCommands\Annotations;
-use SimpleCommands\Reflection\MethodDefinition;
-use SimpleCommands\Reflection\ParameterDefinition;
+use PlainCommands\Annotations;
+use PlainCommands\Reflection\MethodDefinition;
+use PlainCommands\Reflection\ParameterDefinition;
 use Stringy\StaticStringy;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -216,7 +216,7 @@ class Command
             $argument = Argument::create($target, $parameter);
 
             $this->parameters[] = $runtimeArgument->orElse($booleanOption)->orElse($argument)->getOrThrow(
-                // TODO Add FQCN, like \SimpleCommands\Examples\RepositoryGrabber::loadFromGitHub()
+                // TODO Add FQCN, like \PlainCommands\Examples\RepositoryGrabber::loadFromGitHub()
                 new InvalidArgumentException("Parameter \${$parameter->getName()} cannot be processed")
             );
         }

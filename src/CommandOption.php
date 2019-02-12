@@ -1,15 +1,15 @@
 <?php
 
-namespace SimpleCommands;
+namespace PlainCommands;
 
 use InvalidArgumentException;
 use PhpOption\LazyOption;
 use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
-use SimpleCommands\Reflection\MethodDefinition;
-use SimpleCommands\Reflection\PropertyDefinition;
-use SimpleCommands\Reflection\Type;
+use PlainCommands\Reflection\MethodDefinition;
+use PlainCommands\Reflection\PropertyDefinition;
+use PlainCommands\Reflection\Type;
 use Stringy\StaticStringy;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,7 +29,7 @@ abstract class CommandOption implements InputHandler
     protected $definition;
 
     /**
-     * @var \SimpleCommands\Annotations\Option
+     * @var Annotations\Option
      */
     protected $annotation;
 

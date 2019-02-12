@@ -1,10 +1,10 @@
 <?php
 
-namespace SimpleCommands;
+namespace PlainCommands;
 
 use function Functional\map;
-use SimpleCommands\Annotations;
-use SimpleCommands\Reflection\ObjectDefinition;
+use PlainCommands\Annotations;
+use PlainCommands\Reflection\ObjectDefinition;
 use Stringy\StaticStringy;
 use function Functional\flat_map;
 use function Functional\partial_left;

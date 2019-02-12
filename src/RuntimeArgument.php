@@ -1,15 +1,15 @@
 <?php
 
-namespace SimpleCommands;
+namespace PlainCommands;
 
 use InvalidArgumentException;
 use PhpOption\LazyOption;
 use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
-use SimpleCommands\Reflection\ClassDefinition;
-use SimpleCommands\Reflection\ObjectType;
-use SimpleCommands\Reflection\ParameterDefinition;
+use PlainCommands\Reflection\ClassDefinition;
+use PlainCommands\Reflection\ObjectType;
+use PlainCommands\Reflection\ParameterDefinition;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Helper\HelperInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -82,7 +82,7 @@ class RuntimeArgument implements InputHandler
             })
             ->match($this->class)
             ->getOrThrow(new UnexpectedValueException(
-                // TODO Add FQCN, like \SimpleCommands\Examples\RepositoryGrabber::loadFromGitHub()
+                // TODO Add FQCN, like \PlainCommands\Examples\RepositoryGrabber::loadFromGitHub()
                 'Parameter $' . $this->definition->getName() . ': class is not supported.'
             ))
         ;

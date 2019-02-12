@@ -3,8 +3,8 @@
 use Doctrine\Annotations\AnnotationReader as V2AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationReader as V1AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use SimpleCommands\CommandBuilder;
-use SimpleCommands\Reflection\Reflector;
+use PlainCommands\CommandBuilder;
+use PlainCommands\Reflection\Reflector;
 
 $classLoader = require __DIR__ . '/../vendor/autoload.php';
 if (class_exists(AnnotationRegistry::class)) {

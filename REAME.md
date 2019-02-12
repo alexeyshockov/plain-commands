@@ -1,4 +1,4 @@
-# simple-commands
+# Symfony Annotated Commands
 
 Create CLI applications with many commands easily. This library is a lightweight wrapper around Symfony Console 
 Component, that can be used alone or within Symfony based web application.

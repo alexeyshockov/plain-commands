@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleCommands\Reflection;
+namespace PlainCommands\Reflection;
 
 class Type
 {

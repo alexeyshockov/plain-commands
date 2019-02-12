@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleCommands\Reflection;
+namespace PlainCommands\Reflection;
 
 use phpDocumentor\Reflection\DocBlock\Tags\Param;
 use PhpOption\None;

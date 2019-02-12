@@ -1,14 +1,14 @@
 <?php
 
-namespace SimpleCommands;
+namespace PlainCommands;
 
 use InvalidArgumentException;
 use PhpOption\LazyOption;
 use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
-use SimpleCommands\Reflection\ParameterDefinition;
-use SimpleCommands\Reflection\ScalarType;
+use PlainCommands\Reflection\ParameterDefinition;
+use PlainCommands\Reflection\ScalarType;
 use Stringy\StaticStringy;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputArgument;

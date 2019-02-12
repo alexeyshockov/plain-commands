@@ -1,9 +1,9 @@
 <?php
 
-namespace SimpleCommands;
+namespace PlainCommands;
 
 use InvalidArgumentException;
-use SimpleCommands\Reflection\Reflector;
+use PlainCommands\Reflection\Reflector;
 use Symfony\Component\Console\Application;
 use function Functional\flatten;
 

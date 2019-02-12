@@ -1,9 +1,9 @@
 <?php
 
-namespace SimpleCommands\Examples;
+namespace PlainCommands\Examples;
 
-use SimpleCommands\Annotations\Command;
-use SimpleCommands\Annotations\Option;
+use PlainCommands\Annotations\Command;
+use PlainCommands\Annotations\Option;
 
 abstract class BaseCommandSet
 {

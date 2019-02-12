@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleCommands\Annotations;
+namespace PlainCommands\Annotations;
 
 /**
  * @Annotation
