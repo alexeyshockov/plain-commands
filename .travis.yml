@@ -1,0 +1,21 @@
+# Use container explicitly (see http://docs.travis-ci.com/user/workers/container-based-infrastructure/).
+sudo: false
+
+language: php
+
+matrix:
+  include:
+    - php: 7.0
+    - php: 7.1
+    - php: 7.2
+    - php: 7.3
+
+before_install:
+  - composer self-update
+
+install:
+  # --prefer-source to pass GitHub limits (see https://twitter.com/travisci/status/297761892775100418 for example).
+  - composer install --no-interaction --prefer-source
+
+script:
+  - vendor/bin/phpunit --testdox
