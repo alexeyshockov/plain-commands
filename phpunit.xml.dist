@@ -3,18 +3,23 @@
 <phpunit
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.0/phpunit.xsd"
-        backupGlobals="false"
         colors="true"
-        bootstrap="./examples/bootstrap.php"
+        bootstrap="./vendor/autoload.php"
 >
     <php>
         <ini name="error_reporting" value="-1"/>
         <ini name="memory_limit" value="-1"/>
     </php>
 
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src</directory>
+        </whitelist>
+    </filter>
+
     <testsuites>
-        <testsuite name="Default">
-            <directory>./tests/</directory>
+        <testsuite name="Integration">
+            <directory>./tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>

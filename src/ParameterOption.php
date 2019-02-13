@@ -76,8 +76,6 @@ class ParameterOption implements InputHandler
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        return $input->hasOption($this->getName());
+        return $input->getOption($this->getName());
     }
-
-
 }

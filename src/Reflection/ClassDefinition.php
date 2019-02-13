@@ -6,6 +6,7 @@ use PhpOption\Option;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
+use Traversable;
 
 class ClassDefinition extends AbstractDefinition
 {
@@ -43,35 +44,29 @@ class ClassDefinition extends AbstractDefinition
     /**
      * Only public and not static methods (filter ability may be added later).
      *
-     * @return array
+     * @return iterable<MethodDefinition>
      */
     public function getMethods()
     {
         $methods = $this->class->getMethods(ReflectionMethod::IS_PUBLIC & ~ReflectionMethod::IS_STATIC);
 
-        $definitions = [];
         foreach ($methods as $method) {
-            $definitions[] = new MethodDefinition($method, $this->reflector);
+            yield new MethodDefinition($method, $this->reflector);
         }
-
-        return $definitions;
     }
 
     /**
      * All non-static properties (private, protected, public)
      *
-     * @return array
+     * @return iterable<PropertyDefinition>
      */
     public function getProperties()
     {
         $properties = $this->class->getProperties(~ReflectionProperty::IS_STATIC);
 
-        $definitions = [];
         foreach ($properties as $property) {
-            $definitions[] = new PropertyDefinition($property, $this->reflector);
+            yield new PropertyDefinition($property, $this->reflector);
         }
-
-        return $definitions;
     }
 
     /**

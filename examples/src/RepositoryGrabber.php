@@ -3,19 +3,22 @@
 namespace PlainCommands\Examples;
 
 use PlainCommands\Annotations\Command;
+use PlainCommands\Annotations\CommandSet;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Command sets are usual POPO (Plain Old PHP Objects) and can extend like other classes.
+ *
+ * @CommandSet("vcs")
  */
 class RepositoryGrabber extends BaseCommandSet
 {
     /**
-     * Load a repository from GitHub
+     * Load a repository from GitHub (this summary goes to the command's description)
      *
-     * Long desc
+     * And the description from PHPDoc goes to "Help" section of command's --help output.
      *
-     * @Command(shortcuts={"gh", "g"})
+     * @Command(shortcuts={"g"})
      *
      * @param OutputInterface $writer
      * @param string          $url A repository URL
@@ -23,27 +26,24 @@ class RepositoryGrabber extends BaseCommandSet
      */
     public function loadFromGithub(OutputInterface $writer, $url, $verifySsl = false)
     {
-        var_dump($url, $verifySsl);
+        $ssl = $verifySsl ? 'with SSL' : 'without SSL';
 
-        var_dump($this->workingDirectory);
-        var_dump($this->exportPath);
+        $writer->writeln("$url will be cloned to {$this->workingDirectory} ($ssl)");
 
-        $writer->writeln('Yes, we are here!');
-
-        // The default exit code is 0, that means everything is OK.
+        // Default exit code is 0 (as in default Symfony Console), that means everything is OK
     }
 
     /**
-     * Load repository from BitBucket
+     * Load a repository from BitBucket
      *
-     * @Command(shortcuts={"bb", "b"})
+     * @Command(shortcuts={"b"})
      *
      * @param OutputInterface $writer
      * @param string          $url A repository URL
      */
     public function loadFromBitbucket(OutputInterface $writer, $url)
     {
-
+        $writer->writeln("$url will be cloned to {$this->workingDirectory}");
     }
 
     // This method is not a command, it doesn't use @Command annotation

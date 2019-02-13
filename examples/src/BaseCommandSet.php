@@ -8,31 +8,33 @@ use PlainCommands\Annotations\Option;
 abstract class BaseCommandSet
 {
     /**
-     * Working directory for the command
+     * How many parallel HTTP requests are allowed
      *
-     * @Option(shortcuts={"w"})
+     * @Option(shortcuts={"c"})
      *
-     * @var string
+     * @var int
      */
-    protected $workingDirectory = './repositories';
+    protected $concurrency = 5;
 
     // Just a usual field, it's not a command option without @Option annotation
-    protected $exportPath;
+    protected $workingDirectory;
 
     /**
      * Export path for the command
      *
+     * The description from PHPDoc goes nowhere for command options, there is no appropriate place in Symfony for it.
+     *
      * @Option()
      *
-     * @param string $exportPath
+     * @param string $dir
      */
-    public function setExportPath($exportPath = './')
+    public function setWorkingDirectory($dir = './')
     {
-        if (!is_dir($exportPath)) {
-            throw new \InvalidArgumentException('Export path should be an existing directory');
+        if (!is_dir($dir)) {
+            throw new \InvalidArgumentException('Working directory should exist');
         }
 
-        $this->exportPath = $exportPath;
+        $this->workingDirectory = $dir;
     }
 
     /**
@@ -42,12 +44,14 @@ abstract class BaseCommandSet
      *
      * @param string $something
      */
-    // Doesn't work, because PROTECTED
-    protected function setSomething($something)
-    {}
+    // Doesn't work, because the method is PROTECTED
+    protected function setSomethingWrong($something)
+    {
+
+    }
 
     /**
-     * Is repository already loaded? Non-zero status code if not loaded
+     * Is repository already loaded? Exit code 1 if not
      *
      * @Command()
      *
@@ -57,7 +61,7 @@ abstract class BaseCommandSet
      */
     public function isLoaded($url)
     {
-        // Each command can have exit status.
+        // Return value is the exit code, works the same way as in default Symfony Console
         return 1;
     }
 }

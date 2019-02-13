@@ -5,6 +5,8 @@ namespace PlainCommands\Annotations;
 /**
  * @Annotation
  * @Target({"METHOD"})
+ *
+ * @api
  */
 class Command
 {

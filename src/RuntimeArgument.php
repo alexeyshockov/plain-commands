@@ -7,14 +7,18 @@ use PhpOption\LazyOption;
 use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
+use PlainCommands\Arguments\StdErr;
+use PlainCommands\Arguments\StdOut;
 use PlainCommands\Reflection\ClassDefinition;
 use PlainCommands\Reflection\ObjectType;
 use PlainCommands\Reflection\ParameterDefinition;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Helper\HelperInterface;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use UnexpectedValueException;
+use function Functional\const_function as id;
 use function PatternMatcher\option_matcher;
 
 class RuntimeArgument implements InputHandler
@@ -66,10 +70,15 @@ class RuntimeArgument implements InputHandler
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $errorOutput = ($output instanceof ConsoleOutputInterface) ? $output->getErrorOutput() : null;
+
         return option_matcher(function ($className, ClassDefinition $class) {
             return $class->implementsInterface($className);
         })
+            ->addCase(StdOut::class, id(new StdOut($output)))
+            ->addCase(StdErr::class, id(new StdErr($errorOutput)))
             ->addCase(InputInterface::class, $input)
+            ->addCase(ConsoleOutputInterface::class, $output)
             ->addCase(OutputInterface::class, $output)
             ->addCase(HelperInterface::class, function (ClassDefinition $class) {
                 foreach ($this->target->getHelperSet() as $helper) {

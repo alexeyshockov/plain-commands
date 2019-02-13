@@ -5,6 +5,8 @@ namespace PlainCommands\Annotations;
 /**
  * @Annotation
  * @Target({"METHOD", "PROPERTY"})
+ *
+ * @api
  */
 class Option
 {

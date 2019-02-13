@@ -15,6 +15,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Colada\x;
 use function Functional\map;
+use function Functional\each;
 
 class Command
 {
@@ -120,9 +121,9 @@ class Command
 
         $target
             ->setAliases($this->getShortcuts())
-            ->setDescription($this->getDescription())
-            // TODO ->addUsage()
-            // TODO ->addHelp()
+            ->setDescription($this->definition->getShortDescription())
+            ->setHelp($this->definition->getLongDescription())
+            // TODO ->addUsage() from @example PHPDoc tags
         ;
 
         return $target->setCode($this);
@@ -139,23 +140,11 @@ class Command
      */
     public function __invoke(InputInterface $input, OutputInterface $output)
     {
-        /*
-         * Arguments
-         */
+        each($this->globalOptions, x()->execute($input, $output));
 
-        $arguments = [];
-        /** @var InputHandler $handler */
-        foreach ($this->parameters as $handler) {
-            $arguments[] = $handler->execute($input, $output);
-        }
+        $arguments = map($this->parameters, x()->execute($input, $output));
 
-        /*
-         * Global options
-         */
-
-        map($this->globalOptions, x()->execute($input, $output));
-
-        // Use return value from the command for the exit code (as in usual Symfony commands).
+        // Use return value from the command for the exit code (as in usual Symfony commands)
         return $this->definition->invokeFor($this->container->getObject(), $arguments);
     }
 
@@ -187,11 +176,6 @@ class Command
         ;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
     /**
      * Command name with the namespace (from the command set), like "doctrine:create"
      *
@@ -200,11 +184,6 @@ class Command
     public function getFullName(): string
     {
         return implode(':', array_filter([$this->container->getNamespace(), $this->name]));
-    }
-
-    public function getDescription(): string
-    {
-        return $this->definition->getShortDescription();
     }
 
     private function buildParameters(SymfonyCommand $target)

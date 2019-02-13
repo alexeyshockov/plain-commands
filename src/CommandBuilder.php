@@ -5,8 +5,13 @@ namespace PlainCommands;
 use InvalidArgumentException;
 use PlainCommands\Reflection\Reflector;
 use Symfony\Component\Console\Application;
+use function Colada\x;
 use function Functional\flatten;
+use function Functional\map;
 
+/**
+ * @api
+ */
 class CommandBuilder
 {
     /**
@@ -45,17 +50,22 @@ class CommandBuilder
      */
     public function applyTo(Application $app)
     {
-        $commands = [];
-        foreach ($this->commandSets as $commandSet) {
-            $commands[] = $commandSet->buildCommands();
-        }
-        $commands = flatten($commands);
+        /*
+         * Instead of:
+         *
+         * $commands = [];
+         * foreach ($this->commandSets as $commandSet) {
+         *     $commands[] = $commandSet->buildCommands();
+         * }
+         * $commands = flatten($commands);
+         */
+        $commands = flatten(map($this->commandSets, x()->buildCommands()));
 
         /** @var Command $command */
         foreach ($commands as $command) {
             $app->add($command->getTarget());
 
-            // This isn't supported and should be done by the end user directly.
+            // This isn't supported (yet) and should be done by the end user directly
 //            if ($command->isDefault()) {
 //                $this->application->setDefaultCommand($command->getFullName());
 //            }

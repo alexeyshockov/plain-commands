@@ -5,6 +5,8 @@ namespace PlainCommands\Annotations;
 /**
  * @Annotation
  * @Target({"CLASS"})
+ *
+ * @api
  */
 class CommandSet
 {
