@@ -46,6 +46,10 @@ class MethodOption extends CommandOption
 
     protected function executeForValue($value)
     {
+        if ($value === null && !$this->parameterDefinition->hasDefaultValue()) {
+            return;
+        }
+
         $this->definition->invokeFor(
             $this->container->getObject(),
             [$value]

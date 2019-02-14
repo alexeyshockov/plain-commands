@@ -70,13 +70,14 @@ class RuntimeArgument implements InputHandler
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $errorOutput = ($output instanceof ConsoleOutputInterface) ? $output->getErrorOutput() : null;
+        // Error output is not available in CommandTester prior to Symfony 4.2
+        $stderr = ($output instanceof ConsoleOutputInterface) ? new StdErr($output->getErrorOutput()) : null;
 
         return option_matcher(function ($className, ClassDefinition $class) {
             return $class->implementsInterface($className);
         })
             ->addCase(StdOut::class, id(new StdOut($output)))
-            ->addCase(StdErr::class, id(new StdErr($errorOutput)))
+            ->addCase(StdErr::class, id($stderr))
             ->addCase(InputInterface::class, $input)
             ->addCase(ConsoleOutputInterface::class, $output)
             ->addCase(OutputInterface::class, $output)

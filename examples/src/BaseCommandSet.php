@@ -2,6 +2,7 @@
 
 namespace PlainCommands\Examples;
 
+use InvalidArgumentException;
 use PlainCommands\Annotations\Command;
 use PlainCommands\Annotations\Option;
 
@@ -31,10 +32,27 @@ abstract class BaseCommandSet
     public function setWorkingDirectory($dir = './')
     {
         if (!is_dir($dir)) {
-            throw new \InvalidArgumentException('Working directory should exist');
+            throw new InvalidArgumentException('Working directory should exist');
         }
 
         $this->workingDirectory = $dir;
+    }
+
+    /**
+     * An option without default value
+     *
+     * This method represents an option without default value, it will be NOT called if the option is not present in
+     * the input.
+     *
+     * @Option()
+     *
+     * @param string $value
+     */
+    public function setOptionWithoutDefaultValue($value)
+    {
+        if ($value === null) {
+            throw new InvalidArgumentException('This will not happen');
+        }
     }
 
     /**

@@ -51,7 +51,7 @@
     },
     "scripts": {
         "ci": [
-            "@phpcs",
+            "@check-style",
             "@test"
         ],
         "test": "vendor/bin/phpunit --testdox",
