@@ -47,7 +47,6 @@ abstract class BaseCommandSet
     // Doesn't work, because the method is PROTECTED
     protected function setSomethingWrong($something)
     {
-
     }
 
     /**

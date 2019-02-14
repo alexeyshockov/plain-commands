@@ -1,21 +1,24 @@
-# Use container explicitly (see http://docs.travis-ci.com/user/workers/container-based-infrastructure/).
 sudo: false
-
 language: php
 
-matrix:
-  include:
-    - php: 7.0
-    - php: 7.1
-    - php: 7.2
-    - php: 7.3
+php:
+  - 7.0
+  - 7.1
+  - 7.2
+  - 7.3
+env:
+  - SYMFONY_VERSION="~3.0" DOCTRINE="~1.2"
+  - SYMFONY_VERSION="~3.0" DOCTRINE="2.0.x-dev"
+  - SYMFONY_VERSION="~4.0" DOCTRINE="~1.2"
+  - SYMFONY_VERSION="~4.0" DOCTRINE="2.0.x-dev"
 
 before_install:
   - composer self-update
 
 install:
-  # --prefer-source to pass GitHub limits (see https://twitter.com/travisci/status/297761892775100418 for example).
-  - composer install --no-interaction --prefer-source
+  - composer install --no-interaction
+  - composer require --no-interaction symfony/console:${SYMFONY_VERSION}
+  - composer require --no-interaction doctrine/annotations:${SYMFONY_VERSION}
 
 script:
-  - vendor/bin/phpunit --testdox
+  - composer ci
