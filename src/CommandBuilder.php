@@ -59,7 +59,7 @@ class CommandBuilder
          * }
          * $commands = flatten($commands);
          */
-        $commands = flatten(map($this->commandSets, x()->buildCommands()));
+        $commands = flatten(map($this->commandSets, x(CommandSet::class)->buildCommands()));
 
         /** @var Command $command */
         foreach ($commands as $command) {

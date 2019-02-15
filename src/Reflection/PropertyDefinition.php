@@ -10,17 +10,9 @@ use ReflectionException;
 use ReflectionProperty;
 use function Colada\x;
 
-class PropertyDefinition extends AbstractDefinition
+class PropertyDefinition
 {
-    /**
-     * @var ReflectionProperty
-     */
-    private $property;
-
-    /**
-     * @var Option<DocBlock>
-     */
-    private $docBlock;
+    use StructuralElement;
 
     /**
      * @var Option<Var_>
@@ -29,18 +21,18 @@ class PropertyDefinition extends AbstractDefinition
 
     public function __construct(ReflectionProperty $property, Reflector $reflector)
     {
-        parent::__construct($reflector);
+        $this->reflector = $reflector;
 
-        $this->property = $property;
-        $this->docBlock = $reflector->readDocBlock($this->property);
+        $this->element = $property;
+        $this->docBlock = $reflector->readDocBlock($this->element);
 
-        if (!$this->property->isPublic()) {
-            $this->property->setAccessible(true);
+        if (!$this->element->isPublic()) {
+            $this->element->setAccessible(true);
         }
 
         // Try to find @var tag for the property.
         $this->tag = Option::fromArraysValue(
-            $this->docBlock->map(x()->getTagsByName('var'))->getOrElse([]),
+            $this->docBlock->map(x(DocBlock::class)->getTagsByName('var'))->getOrElse([]),
             0
         );
     }
@@ -67,26 +59,6 @@ class PropertyDefinition extends AbstractDefinition
         return $scalarType->orElse($objectType)->getOrElse($anyType);
     }
 
-    public function readAnnotation(string $type): Option
-    {
-        return $this->reflector->readAnnotation($this->property, $type);
-    }
-
-    public function getShortDescription(): string
-    {
-        return $this->docBlock->map(x()->getSummary())->getOrElse('');
-    }
-
-    public function getLongDescription(): string
-    {
-        return $this->docBlock->map(x()->getDescription())->getOrElse('');
-    }
-
-    public function getName(): string
-    {
-        return $this->property->getName();
-    }
-
     /**
      * @param object $object
      *
@@ -94,7 +66,7 @@ class PropertyDefinition extends AbstractDefinition
      */
     public function getValue($object)
     {
-        return $this->property->getValue($object);
+        return $this->element->getValue($object);
     }
 
     /**
@@ -105,7 +77,7 @@ class PropertyDefinition extends AbstractDefinition
      */
     public function setValue($object, $value)
     {
-        $this->property->setValue($object, $value);
+        $this->element->setValue($object, $value);
 
         return $this;
     }

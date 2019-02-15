@@ -2,6 +2,8 @@
 
 namespace PlainCommands\Annotations;
 
+use Doctrine\Common\Annotations\Annotation\Target;
+
 /**
  * @Annotation
  * @Target({"METHOD", "PROPERTY"})
@@ -11,7 +13,7 @@ namespace PlainCommands\Annotations;
 class Option
 {
     /**
-     * Command name. Will be extracted from method name by default.
+     * Option name (will be extracted from method name by default)
      *
      * @var string
      */
@@ -21,4 +23,9 @@ class Option
      * @var array<string>
      */
     public $shortcuts = [];
+
+    public function getName(): \PhpOption\Option
+    {
+        return \PhpOption\Option::fromValue($this->value);
+    }
 }

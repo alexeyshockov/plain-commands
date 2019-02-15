@@ -28,18 +28,15 @@ class MethodOption extends CommandOption
         parent::__construct($container, $target, $definition);
     }
 
-    public function getName()
+    public function getName(): string
     {
-        $nameFromDefinition = (string) str($this->definition->getName())->removeLeft('set')->dasherize();
-
-        // From the annotation (first) or from the definition (object property or method)
-        return $this->annotation->value ?: $nameFromDefinition;
+        // Annotation value (if set) or build it from the method name
+        return $this->annotation->getName()->getOrElse(
+            (string) str($this->definition->getName())->removeLeft('set')->dasherize()
+        );
     }
 
-    /**
-     * @return Option
-     */
-    public function getDefaultValue()
+    public function getDefaultValue(): Option
     {
         return $this->parameterDefinition->getDefaultValue();
     }
@@ -56,10 +53,7 @@ class MethodOption extends CommandOption
         );
     }
 
-    /**
-     * @return Type
-     */
-    public function getType()
+    public function getType(): Type
     {
         return $this->parameterDefinition->getType();
     }

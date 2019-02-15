@@ -54,7 +54,7 @@ class Argument implements InputHandler
 
     public function getName(): string
     {
-        return (string) StaticStringy::dasherize($this->definition->getName());
+        return dasherize($this->definition->getName());
     }
 
     public function getDescription(): string

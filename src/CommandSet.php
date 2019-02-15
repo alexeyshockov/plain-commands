@@ -2,10 +2,10 @@
 
 namespace PlainCommands;
 
-use function Functional\map;
-use PlainCommands\Annotations;
+use PlainCommands\Annotations as A;
 use PlainCommands\Reflection\ObjectDefinition;
 use Stringy\StaticStringy;
+use Traversable;
 use function Functional\flat_map;
 use function Functional\partial_left;
 
@@ -27,13 +27,13 @@ class CommandSet
     public function __construct(ObjectDefinition $object)
     {
         $this->definition = $object;
-        $this->annotation = $object->getClass()->readAnnotation(Annotations\CommandSet::class);
+        $this->annotation = $object->getClass()->readAnnotation(A\CommandSet::class);
     }
 
     public function getNamespace(): string
     {
-        return $this->annotation->map(function (Annotations\CommandSet $annotation) {
-            return $annotation->value ?: (string) StaticStringy::dasherize($this->definition->getClass()->getName());
+        return $this->annotation->map(function (A\CommandSet $a) {
+            return $a->value ?: dasherize($this->definition->getClass()->getName());
         })->getOrElse('');
     }
 
@@ -46,7 +46,7 @@ class CommandSet
     }
 
     /**
-     * @return iterable Command[] generator
+     * @return Traversable<Command>
      */
     public function buildCommands()
     {

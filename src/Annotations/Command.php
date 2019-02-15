@@ -2,6 +2,8 @@
 
 namespace PlainCommands\Annotations;
 
+use Doctrine\Common\Annotations\Annotation\Target;
+
 /**
  * @Annotation
  * @Target({"METHOD"})
@@ -11,7 +13,7 @@ namespace PlainCommands\Annotations;
 class Command
 {
     /**
-     * Command name. Will be extracted from method name by default.
+     * Command name (will be extracted from method name by default)
      *
      * @var string
      */
@@ -22,11 +24,8 @@ class Command
      */
     public $shortcuts = [];
 
-    /**
-     * @var bool
-     */
-
-    // This option is not supported, because it introduces unneeded complexity (for debugging). Default command (in
-    // most cases) should be defined only once in the same place where the app is defined.
-//    public $default = false;
+    public function getName(): \PhpOption\Option
+    {
+        return \PhpOption\Option::fromValue($this->value);
+    }
 }

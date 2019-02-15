@@ -7,6 +7,7 @@ use PhpOption\LazyOption;
 use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
+use PlainCommands\Annotations as A;
 use PlainCommands\Reflection\MethodDefinition;
 use PlainCommands\Reflection\PropertyDefinition;
 use PlainCommands\Reflection\Type;
@@ -42,7 +43,7 @@ abstract class CommandOption implements InputHandler
      *
      * @return Option<self>
      */
-    public static function create(CommandSet $container, SymfonyCommand $target, $definition)
+    public static function create(CommandSet $container, SymfonyCommand $target, $definition): Option
     {
         return new LazyOption(function () use ($container, $target, $definition) {
             try {
@@ -59,22 +60,20 @@ abstract class CommandOption implements InputHandler
         $this->container = $container;
 
         $this->annotation = $this->definition
-            ->readAnnotation(Annotations\Option::class)
+            ->readAnnotation(A\Option::class)
             ->getOrThrow(new InvalidArgumentException('The method or property is not a command option'))
         ;
 
         $this->configure($target);
     }
 
-    public function getName()
+    public function getName(): string
     {
-        $nameFromDefinition = StaticStringy::dasherize($this->definition->getName());
-
-        // From the annotation (first) or from the definition (object property or method)
-        return $this->annotation->value ?: $nameFromDefinition;
+        // Annotation value (if set) or build it from the element's name (object property or method)
+        return $this->annotation->value ?: dasherize($this->definition->getName());
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->definition->getShortDescription();
     }
@@ -87,15 +86,9 @@ abstract class CommandOption implements InputHandler
         return $this->annotation->shortcuts;
     }
 
-    /**
-     * @return Type
-     */
-    abstract public function getType();
+    abstract public function getType(): Type;
 
-    /**
-     * @return Option
-     */
-    abstract public function getDefaultValue();
+    abstract public function getDefaultValue(): Option;
 
     protected function configure(SymfonyCommand $target)
     {
@@ -124,8 +117,5 @@ abstract class CommandOption implements InputHandler
         $this->executeForValue($input->getOption($this->getName()));
     }
 
-    /**
-     * @param mixed $value
-     */
     abstract protected function executeForValue($value);
 }

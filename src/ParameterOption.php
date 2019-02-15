@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Represents a boolen method's parameter (this is the only case when a parameter is mapped to a command option)
+ * Represents a boolean method's parameter (this is the only case when a parameter is mapped to a command option)
  */
 class ParameterOption implements InputHandler
 {
@@ -56,7 +56,7 @@ class ParameterOption implements InputHandler
 
     public function getName(): string
     {
-        return (string) StaticStringy::dasherize($this->definition->getName());
+        return dasherize($this->definition->getName());
     }
 
     public function getDescription(): string

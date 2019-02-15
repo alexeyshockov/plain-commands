@@ -6,16 +6,14 @@ use InvalidArgumentException;
 use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
-use PlainCommands\Annotations;
+use PlainCommands\Annotations as A;
 use PlainCommands\Reflection\MethodDefinition;
-use PlainCommands\Reflection\ParameterDefinition;
-use Stringy\StaticStringy;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Colada\x;
-use function Functional\map;
 use function Functional\each;
+use function Functional\map;
 
 class Command
 {
@@ -83,7 +81,7 @@ class Command
     {
         $this->container = $container;
         $this->definition = $definition;
-        $this->annotation = $definition->readAnnotation(Annotations\Command::class);
+        $this->annotation = $definition->readAnnotation(A\Command::class);
 
         $this->defineName();
 
@@ -140,9 +138,9 @@ class Command
      */
     public function __invoke(InputInterface $input, OutputInterface $output)
     {
-        each($this->globalOptions, x()->execute($input, $output));
+        each($this->globalOptions, x(CommandOption::class)->execute($input, $output));
 
-        $arguments = map($this->parameters, x()->execute($input, $output));
+        $arguments = map($this->parameters, x(InputHandler::class)->execute($input, $output));
 
         // Use return value from the command for the exit code (as in usual Symfony commands)
         return $this->definition->invokeFor($this->container->getObject(), $arguments);
@@ -150,7 +148,7 @@ class Command
 
     public function getShortcuts(): array
     {
-        return $this->annotation->map(x()->shortcuts)->getOrElse([]);
+        return $this->annotation->map(x(A\Command::class)->shortcuts)->getOrElse([]);
     }
 
     /**
@@ -161,19 +159,10 @@ class Command
     private function defineName()
     {
         $this->name = $this->annotation
-            ->map(function ($annotation) {
-                return $annotation->value ?: (string) StaticStringy::dasherize($this->definition->getName());
-            })
-            // Let's stick with annotations for now. Skip this feature.
-//            ->orElse(Option::fromReturn(function () {
-//                if (str($this->method->getName())->endsWith("Command")) {
-//                    return (string) str($this->method->getName())->removeRight("Command")->dasherize();
-//                }
-//            }))
-            ->getOrThrow(
-                new InvalidArgumentException("Method {$this->definition->getName()}() is not a command.")
-            )
-        ;
+            ->map(x(A\Command::class)->getName()->getOrElse(dasherize($this->definition->getName())))
+            ->getOrThrow(new InvalidArgumentException(
+                "Method {$this->definition->getName()}() is not a command"
+            ));
     }
 
     /**
@@ -188,7 +177,6 @@ class Command
 
     private function buildParameters(SymfonyCommand $target)
     {
-        /** @var ParameterDefinition $parameter */
         foreach ($this->definition->getParameters() as $parameter) {
             $runtimeArgument = RuntimeArgument::create($target, $parameter);
             $booleanOption = ParameterOption::create($target, $parameter);

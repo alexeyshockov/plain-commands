@@ -7,10 +7,7 @@ use PlainCommands\Reflection\Type;
 
 class PropertyOption extends CommandOption
 {
-    /**
-     * @return Option
-     */
-    public function getDefaultValue()
+    public function getDefaultValue(): Option
     {
         return Option::fromValue(
             $this->definition->getValue($this->container->getObject())
@@ -25,10 +22,7 @@ class PropertyOption extends CommandOption
         );
     }
 
-    /**
-     * @return Type
-     */
-    public function getType()
+    public function getType(): Type
     {
         return $this->definition->getType();
     }

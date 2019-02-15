@@ -4,8 +4,13 @@ namespace PlainCommands\Reflection;
 
 use InvalidArgumentException;
 
-class ObjectDefinition extends AbstractDefinition
+class ObjectDefinition
 {
+    /**
+     * @var Reflector
+     */
+    private $reflector;
+
     /**
      * @var object
      */
@@ -17,9 +22,8 @@ class ObjectDefinition extends AbstractDefinition
             throw new InvalidArgumentException('Object is expected');
         }
 
-        parent::__construct($reflector);
-
         $this->object = $object;
+        $this->reflector = $reflector;
     }
 
     /**
@@ -32,6 +36,7 @@ class ObjectDefinition extends AbstractDefinition
 
     public function getClass(): ClassDefinition
     {
+        /** @noinspection PhpUnhandledExceptionInspection */
         return $this->reflector->reflectClass(get_class($this->object));
     }
 }

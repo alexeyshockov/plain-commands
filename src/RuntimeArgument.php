@@ -46,7 +46,7 @@ class RuntimeArgument implements InputHandler
      *
      * @return Option<self>
      */
-    public static function create(SymfonyCommand $target, ParameterDefinition $definition)
+    public static function create(SymfonyCommand $target, ParameterDefinition $definition): Option
     {
         return new LazyOption(function () use ($target, $definition) {
             try {

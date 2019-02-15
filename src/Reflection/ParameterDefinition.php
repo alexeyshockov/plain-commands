@@ -9,30 +9,32 @@ use PhpOption\Some;
 use ReflectionException;
 use ReflectionParameter;
 
-class ParameterDefinition extends AbstractDefinition
+class ParameterDefinition
 {
+    use Definition;
+
     /**
      * @var ReflectionParameter
      */
-    private $parameter;
+    private $element;
 
     /**
      * @var Param
      */
+    // TODO Make optional
     private $tag;
 
     public function __construct(ReflectionParameter $parameter, Param $tag, Reflector $reflector)
     {
-        parent::__construct($reflector);
-
-        $this->parameter = $parameter;
+        $this->reflector = $reflector;
+        $this->element = $parameter;
         $this->tag = $tag;
     }
 
     public function getType(): Type
     {
         // ReflectionType::getName() is available only from PHP 7.1.0
-        $type = $this->parameter->hasType() ? $this->parameter->getType()->getName() : (string) $this->tag->getType();
+        $type = $this->element->hasType() ? $this->element->getType()->getName() : (string) $this->tag->getType();
 
         $scalarType = ScalarType::create($type);
 
@@ -51,7 +53,7 @@ class ParameterDefinition extends AbstractDefinition
 
     public function getName(): string
     {
-        return $this->parameter->getName();
+        return $this->element->getName();
     }
 
     public function getDescription(): string
@@ -66,8 +68,8 @@ class ParameterDefinition extends AbstractDefinition
 
     public function getDefaultValue(): Option
     {
-        return $this->parameter->isDefaultValueAvailable()
-            ? new Some($this->parameter->getDefaultValue())
+        return $this->element->isDefaultValueAvailable()
+            ? new Some($this->element->getDefaultValue())
             : None::create();
     }
 }

@@ -9,54 +9,17 @@ use ReflectionMethod;
 use function Colada\x;
 use function Functional\map;
 use function Functional\zip;
+use Traversable;
 
-class MethodDefinition extends AbstractDefinition
+class MethodDefinition
 {
-    /**
-     * @var ReflectionMethod
-     */
-    private $method;
+    use StructuralElement;
 
-    /**
-     * @var Option<DocBlock>
-     */
-    private $docBlock;
-
-    /**
-     * @param ReflectionMethod $property
-     * @param Reflector        $reflector
-     */
     public function __construct(ReflectionMethod $property, Reflector $reflector)
     {
-        parent::__construct($reflector);
-
-        $this->method = $property;
-        $this->docBlock = $reflector->readDocBlock($this->method);
-    }
-
-    /**
-     * @param string $type
-     *
-     * @return Option
-     */
-    public function readAnnotation($type)
-    {
-        return $this->reflector->readAnnotation($this->method, $type);
-    }
-
-    public function getShortDescription(): string
-    {
-        return $this->docBlock->map(x()->getSummary())->getOrElse('');
-    }
-
-    public function getLongDescription(): string
-    {
-        return $this->docBlock->map(x()->getDescription())->getOrElse('');
-    }
-
-    public function getName()
-    {
-        return $this->method->getName();
+        $this->reflector = $reflector;
+        $this->element = $property;
+        $this->docBlock = $reflector->readDocBlock($this->element);
     }
 
     /**
@@ -66,11 +29,11 @@ class MethodDefinition extends AbstractDefinition
      */
     public function getParameters()
     {
-        $parameters = $this->method->getParameters();
-        $tags = $this->docBlock->map(x()->getTagsByName('param'))->getOrElse([]);
+        $parameters = $this->element->getParameters();
+        $tags = $this->docBlock->map(x(DocBlock::class)->getTagsByName('param'))->getOrElse([]);
 
         if (count($parameters) !== count($tags)) {
-            throw new LengthException('Number of parameters is not equal to number of @var tags');
+            throw new LengthException('Number of parameters is not equal to number of @param tags');
         }
 
         return map(zip($parameters, $tags), function ($data) {
@@ -86,6 +49,6 @@ class MethodDefinition extends AbstractDefinition
      */
     public function invokeFor($object, array $arguments)
     {
-        return $this->method->invokeArgs($object, $arguments);
+        return $this->element->invokeArgs($object, $arguments);
     }
 }
