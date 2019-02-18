@@ -36,12 +36,12 @@ class RepositoryGrabber extends BaseCommandSet
     /**
      * Load a repository from BitBucket
      *
-     * @Command(shortcuts={"b"})
+     * You can omit "param" tags in the method's PHPDoc, because all the information is already specified in the
+     * method definition.
      *
-     * @param OutputInterface $writer
-     * @param string          $url A repository URL
+     * @Command(shortcuts={"b"})
      */
-    public function loadFromBitbucket(OutputInterface $writer, $url)
+    public function loadFromBitbucket(OutputInterface $writer, string $url)
     {
         $writer->writeln("$url will be cloned to {$this->workingDirectory}");
     }

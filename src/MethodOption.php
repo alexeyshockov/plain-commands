@@ -19,11 +19,10 @@ class MethodOption extends CommandOption
 
     public function __construct(CommandSet $container, SymfonyCommand $target, MethodDefinition $definition)
     {
-        $parameters = $definition->getParameters();
-        if (count($parameters) < 1) {
-            throw new InvalidArgumentException('A setter method for a command option must have at least one parameter');
-        }
-        $this->parameterDefinition = $parameters[0];
+        $this->parameterDefinition = $definition->getParameter()
+            ->getOrThrow(new InvalidArgumentException(
+                'A setter method for a command option must have at least one parameter'
+            ));
 
         parent::__construct($container, $target, $definition);
     }

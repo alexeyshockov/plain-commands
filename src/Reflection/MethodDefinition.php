@@ -4,7 +4,9 @@ namespace PlainCommands\Reflection;
 
 use LengthException;
 use phpDocumentor\Reflection\DocBlock;
+use PhpOption\None;
 use PhpOption\Option;
+use PhpOption\Some;
 use ReflectionMethod;
 use function Colada\x;
 use function Functional\map;
@@ -25,20 +27,27 @@ class MethodDefinition
     /**
      * @throws LengthException If there is mismatch between @param tags and real parameters
      *
-     * @return ParameterDefinition[]
+     * @return Traversable<ParameterDefinition>
      */
     public function getParameters()
     {
         $parameters = $this->element->getParameters();
         $tags = $this->docBlock->map(x(DocBlock::class)->getTagsByName('param'))->getOrElse([]);
 
-        if (count($parameters) !== count($tags)) {
-            throw new LengthException('Number of parameters is not equal to number of @param tags');
+        foreach (zip($parameters, $tags) as list($p, $t)) {
+            yield new ParameterDefinition($this->reflector, $p, $t);
+        }
+    }
+
+    public function getParameter(): Option
+    {
+        if ($this->element->getNumberOfParameters() > 0) {
+            foreach ($this->getParameters() as $parameter) {
+                return new Some($parameter);
+            }
         }
 
-        return map(zip($parameters, $tags), function ($data) {
-            return new ParameterDefinition($data[0], $data[1], $this->reflector);
-        });
+        return None::create();
     }
 
     /**
