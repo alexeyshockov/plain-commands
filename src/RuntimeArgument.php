@@ -17,6 +17,7 @@ use Symfony\Component\Console\Helper\HelperInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use UnexpectedValueException;
 use function Functional\const_function as id;
 use function PatternMatcher\option_matcher;
@@ -79,6 +80,7 @@ class RuntimeArgument implements InputHandler
             ->addCase(StdOut::class, id(new StdOut($output)))
             ->addCase(StdErr::class, id($stderr))
             ->addCase(InputInterface::class, $input)
+            ->addCase(SymfonyStyle::class, new SymfonyStyle($input, $output))
             ->addCase(ConsoleOutputInterface::class, $output)
             ->addCase(OutputInterface::class, $output)
             ->addCase(HelperInterface::class, function (ClassDefinition $class) {
