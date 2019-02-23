@@ -49,9 +49,7 @@ class ExamplesTest extends TestCase
      */
     function namespaced_command_should_work()
     {
-        $this->builder->applyTo($application = new Application());
-
-        $command = $application->find('vcs:load-from-github');
+        $command = $this->app->find('vcs:load-from-github');
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => 'vcs:load-from-github',
@@ -61,7 +59,7 @@ class ExamplesTest extends TestCase
             '--verify-ssl' => null,
         ], ['capture_stderr_separately' => true]);
 
-        self::assertEquals(
+        assertEquals(
             "https://github.com/alexeyshockov/plain-commands will be cloned to /tmp (with SSL)\n",
             $commandTester->getDisplay()
         );
