@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         name="PHP_CodeSniffer"
+         xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
+    <description>Functional PHP coding style configuration</description>
+
+    <file>src/</file>
+    <file>examples/</file>
+    <file>tests/</file>
+
+    <arg name="colors" />
+    <arg value="n" />
+
+    <rule ref="PSR12" />
+
+    <rule ref="Squiz.Scope.MethodScope.Missing">
+        <exclude-pattern>tests/*</exclude-pattern>
+    </rule>
+    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+        <exclude-pattern>tests/*</exclude-pattern>
+    </rule>
+</ruleset>

@@ -8,6 +8,7 @@ use phpDocumentor\Reflection\Types\String_;
 use PhpOption\Option;
 use ReflectionException;
 use ReflectionProperty;
+
 use function Colada\x;
 
 class PropertyDefinition

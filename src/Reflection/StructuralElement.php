@@ -7,6 +7,7 @@ use PhpOption\Option;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
+
 use function Colada\x;
 
 trait StructuralElement

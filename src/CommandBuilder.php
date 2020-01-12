@@ -5,6 +5,7 @@ namespace PlainCommands;
 use InvalidArgumentException;
 use PlainCommands\Reflection\Reflector;
 use Symfony\Component\Console\Application;
+
 use function Colada\x;
 use function Functional\flatten;
 use function Functional\map;

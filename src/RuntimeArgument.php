@@ -19,6 +19,7 @@ use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use UnexpectedValueException;
+
 use function Functional\const_function as id;
 use function PatternMatcher\option_matcher;
 

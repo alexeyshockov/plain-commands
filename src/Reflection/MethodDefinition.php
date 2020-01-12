@@ -8,10 +8,10 @@ use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
 use ReflectionMethod;
-use function Colada\x;
-use function Functional\map;
-use function Functional\zip;
 use Traversable;
+
+use function Colada\x;
+use function Functional\zip;
 
 class MethodDefinition
 {

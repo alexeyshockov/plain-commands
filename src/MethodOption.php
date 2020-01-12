@@ -8,6 +8,7 @@ use PlainCommands\Reflection\MethodDefinition;
 use PlainCommands\Reflection\ParameterDefinition;
 use PlainCommands\Reflection\Type;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
+
 use function Stringy\create as str;
 
 class MethodOption extends CommandOption

@@ -54,6 +54,6 @@
             "@test"
         ],
         "test": "vendor/bin/phpunit --testdox",
-        "check-style": "vendor/bin/phpcs --standard=PSR2 src && vendor/bin/phpcs --standard=PSR2 examples"
+        "check-style": "vendor/bin/phpcs"
     }
 }
