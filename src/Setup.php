@@ -24,7 +24,9 @@ final class Setup
         if (class_exists(AnnotationRegistry::class)) {
             AnnotationRegistry::registerLoader('class_exists');
 
-            return new CachedReader(new AnnotationReader(), new ArrayCache());
+            return class_exists(ArrayCache::class)
+                ? new CachedReader(new AnnotationReader(), new ArrayCache())
+                : new AnnotationReader();
         } else {
             return new V2AnnotationReader();
         }
