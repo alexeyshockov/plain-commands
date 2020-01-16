@@ -1,20 +1,5 @@
 <?php
 
-use Doctrine\Annotations\AnnotationReader as V2AnnotationReader;
-use Doctrine\Common\Annotations\AnnotationReader as V1AnnotationReader;
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use PlainCommands\CommandBuilder;
-use PlainCommands\Reflection\Reflector;
+require_once __DIR__ . '/../vendor/autoload.php';
 
-$classLoader = require __DIR__ . '/../vendor/autoload.php';
-if (class_exists(AnnotationRegistry::class)) {
-    AnnotationRegistry::registerLoader('class_exists');
-
-    $annotationReader = new V1AnnotationReader();
-} else {
-    $annotationReader = new V2AnnotationReader();
-}
-
-$reflector = new Reflector($annotationReader);
-
-return new CommandBuilder($reflector);
+return \PlainCommands\Setup::commandBuilder();
