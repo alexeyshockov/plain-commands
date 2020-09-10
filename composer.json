@@ -42,7 +42,7 @@
     "autoload-dev": {
         "psr-4": {
             "PlainCommands\\Examples\\": "examples/src",
-            "PlainCommands\\Tests\\": "tests/src"
+            "PlainCommands\\Tests\\": "tests"
         },
         "files": [
             "vendor/phpunit/phpunit/src/Framework/Assert/Functions.php"
